@@ -1,0 +1,34 @@
+---
+- name: Update all packages to the latest version
+  apt:
+    upgrade: dist
+    update_cache: yes
+
+- name: Check if a reboot is required
+  register: reboot_required
+  stat: path=/var/run/reboot-required get_md5=no
+
+- name: Server is about to reboot
+  pause: prompt='Please confirm pending reboot! Press return to continue. Press Ctrl+c and then "a" to abort'
+  when: reboot_required.stat.exists == true
+
+- name: Reboot the server
+  shell: sleep 2 && /sbin/shutdown -r now
+  async: 1
+  poll: 0
+  ignore_errors: true
+  when: reboot_required.stat.exists == true
+
+- name: Wait for server to start again
+  wait_for:
+    port: 22
+    host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+    search_regex: OpenSSH
+    delay: 10
+    timeout: 300
+  connection: local
+  when: reboot_required.stat.exists == true
+
+- name: Check for correctly started server
+  shell: uptime
+  when: reboot_required.stat.exists == true
