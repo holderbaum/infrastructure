@@ -13,6 +13,20 @@ function ensure_bundle {
   fi
 }
 
+function execute_provisioning {
+  local host="$1"
+  local config="$2"
+
+  ansible-playbook \
+    -i "${host}," \
+    --ssh-common-args="-F ${config}" \
+    provision/site.yml
+}
+
+function task_deploy {
+  execute_provisioning turing.holderbaum.me ./deploy/ssh-config
+}
+
 function task_test {
   ensure_bundle
   bundle exec rubocop -f emacs
@@ -23,21 +37,19 @@ function task_test {
   fi
 
   vagrant ssh-config > .vagrant/ssh-config
-  ansible-playbook \
-    -i 'default,' \
-    --ssh-common-args='-F ./.vagrant/ssh-config' \
-    provision/site.yml
+  execute_provisioning "default" ".vagrant/ssh-config"
 
   bundle exec rspec
 }
 
 function task_usage {
-  echo "usage: $0 test"
+  echo "usage: $0 deploy | test"
   exit 255
 }
 
 task="${1:-}"
 case "$task" in
+  deploy) task_deploy ;;
   test) task_test ;;
   *) task_usage ;;
 esac
