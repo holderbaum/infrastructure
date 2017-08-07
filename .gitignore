@@ -1,4 +1,6 @@
 /.vagrant
+/.bundle
+/vendor
 
 *.retry
 *.log
