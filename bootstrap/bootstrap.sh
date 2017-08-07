@@ -18,5 +18,11 @@ chmod 600 /root/.ssh/authorized_keys
 chown -R root:root /root/.ssh/
 
 # Install ansible dependencies
-apt-get update
-apt-get install -y python python-pip
+if [ ! -e /usr/bin/python ];
+then
+  apt-get update
+  apt-get install -y \
+      python-yaml \
+      python-paramiko \
+      python-jinja2
+fi
