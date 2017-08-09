@@ -7,7 +7,7 @@ function ensure_bundle {
       bundle install --path vendor/bundle
   fi
 
-  if [ Gemfile -nt vendor/bundle -o Gemfile.lock -nt vendor/bundle ]; then
+  if [ Gemfile -nt vendor/bundle ] || [ Gemfile.lock -nt vendor/bundle ]; then
       bundle
       touch vendor/bundle
   fi
