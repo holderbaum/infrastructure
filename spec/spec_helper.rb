@@ -4,7 +4,7 @@ require 'tempfile'
 
 set :backend, :ssh
 
-host = 'default'
+host = 'turing.example.org'
 
 config = Tempfile.new('', Dir.tmpdir)
 config.write(`vagrant ssh-config #{host}`)

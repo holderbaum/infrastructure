@@ -37,7 +37,7 @@ function task_test {
   fi
 
   vagrant ssh-config > .vagrant/ssh-config
-  execute_provisioning "default" ".vagrant/ssh-config"
+  execute_provisioning "turing.example.org" ".vagrant/ssh-config"
 
   bundle exec rspec
 }
