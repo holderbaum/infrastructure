@@ -1,0 +1,55 @@
+---
+- include_vars: keys.yml
+
+- apt_repository:
+    repo: deb https://packages.prosody.im/debian xenial main
+    state: present
+
+- apt_key:
+    url: https://prosody.im/files/prosody-debian-packages.key
+    id: 107D65A0A148C237FDF00AB47393D7E674D9DBB5
+
+- name: Install prosody
+  apt: 
+    package: prosody
+    state: present
+
+- name: Ensure stopped prosody
+  service:
+    name: prosody
+    state: stopped
+
+# - name: Create ejabberd certificate (if not present)
+#   copy:
+#     content: "{{ keys.cert }}"
+#     dest: /etc/ejabberd/cert.pem
+#     force: no
+# 
+# - name: Enforce ejabberd certificate mode
+#   file:
+#     path: /etc/ejabberd/cert.pem
+#     mode: 0440
+#     owner: ejabberd
+#     group: ejabberd
+# 
+# - name: Create data directory
+#   file:
+#     dest: "{{ data_dir }}/ejabberd"
+#     state: directory
+#     mode: 0700
+#     owner: ejabberd
+#     group: ejabberd
+# 
+# - name: Create ejabberd config
+#   template:
+#     src: ejabberd.yml.j2
+#     dest: /etc/ejabberd/ejabberd.yml
+#     mode: 0440
+#     owner: ejabberd
+#     group: ejabberd
+# 
+# - name: Ensure running ejabberd
+#   service:
+#     name: ejabberd
+#     state: started
+#     enabled: yes
