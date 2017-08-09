@@ -1,0 +1,8 @@
+---
+- name: "create data dir"
+  file:
+    dest: "{{ data_dir }}"
+    state: directory
+    mode: 0711
+    owner: root
+    group: root

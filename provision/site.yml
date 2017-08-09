@@ -2,6 +2,9 @@
 - name: turing
   hosts: all
   remote_user: root
+  vars:
+    data_dir: /data
   roles:
+    - storage
     - update-system
     - security
