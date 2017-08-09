@@ -11,9 +11,8 @@ config.write(`vagrant ssh-config #{host}`)
 config.close
 
 options = Net::SSH::Config.for(host, [config.path])
-
-options[:paranoid] = false
-
-set :host,        options[:host_name] || host
-set :host,        options[:port]
 set :ssh_options, options
+
+def external_ip
+  @external_ip ||= `vagrant ssh -c "hostname -I |cut -d' ' -f2" 2>/dev/null`
+end
