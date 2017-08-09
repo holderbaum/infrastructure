@@ -1,0 +1,31 @@
+---
+- apt_repository:
+    repo: deb http://nginx.org/packages/ubuntu/ xenial nginx
+    state: present
+
+- apt_key:
+    url: https://nginx.org/keys/nginx_signing.key
+    id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
+
+- name: Install nginx
+  apt:
+    package: nginx
+    state: present
+    update_cache: yes
+
+- name: Ensure stopped nginx
+  service:
+    name: nginx
+    state: stopped
+ 
+- name: Ensure running nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Allow HTTP/HTTPS traffic
+  ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
+  with_items:
+    - { rule: 'allow', port: '80', proto: 'tcp' }
+    - { rule: 'allow', port: '443', proto: 'tcp' }
