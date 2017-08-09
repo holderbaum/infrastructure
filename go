@@ -15,11 +15,13 @@ function ensure_bundle {
 
 function execute_provisioning {
   local host="$1"
-  local config="$2"
+  local ssh_config="$2"
 
   ansible-playbook \
-    -i "${host}," \
-    --ssh-common-args="-F ${config}" \
+    -i ./provision/hosts \
+    -l "$host" \
+    --vault-password-file ./provision/get-vault-pass.sh \
+    --ssh-common-args="-F ${ssh_config}" \
     provision/site.yml
 }
 
