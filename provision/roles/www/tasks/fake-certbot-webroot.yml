@@ -1,0 +1,17 @@
+---
+- file:
+    path: '{{ item }}'
+    owner: certbot
+    group: certbot-webroot
+    state: directory
+    mode: "u=rwx,g=rx,o-rwx"
+  with_items:
+    - /var/lib/letsencrypt-webroot/.well-known
+    - /var/lib/letsencrypt-webroot/.well-known/acme-challenge
+
+- copy:
+    src: files/test-challenge
+    dest: "/var/lib/letsencrypt-webroot/.well-known/acme-challenge/YYYCT5-SxWTOd1ZJCI-jCEFwdAfavJublNB--RR0kac"
+    owner: certbot
+    group: certbot-webroot
+    mode: "u=rwx,g=rx,o-rwx"

@@ -17,12 +17,27 @@
   service:
     name: nginx
     state: stopped
- 
+
 - name: Ensure running nginx
   service:
     name: nginx
     state: started
     enabled: yes
+
+- name: Allow nginx to read letsencrypt webroot
+  user:
+    name: nginx
+    groups: certbot-webroot
+    append: yes
+
+- name: Allow webroot access
+  copy:
+    src: files/nginx-default.conf
+    dest: /etc/nginx/conf.d/default.conf
+
+- include: fake-certbot-webroot.yml
+  when: "'test' in group_names"
+ 
 
 - name: Allow HTTP/HTTPS traffic
   ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}

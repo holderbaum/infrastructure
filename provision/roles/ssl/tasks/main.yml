@@ -1,0 +1,41 @@
+---
+- apt_repository:
+    repo: ppa:certbot/certbot
+    state: present
+
+- name: Install certbot
+  apt:
+    package: certbot
+    state: present
+    update_cache: yes
+
+- group:
+    name: certbot
+    state: present
+
+- user:
+    name: certbot
+    group: certbot
+    home: /var/lib/letsencrypt
+    shell: /usr/bin/nologin
+
+- file:
+    path: '{{ item }}'
+    owner: certbot
+    group: certbot
+    state: directory
+    mode: "u=rwx,g=rx,o-rwx"
+  with_items:
+    - /etc/letsencrypt
+    - /var/lib/letsencrypt
+    - /var/lib/letsencrypt-webroot
+    - /var/log/letsencrypt
+
+- group:
+    name: certbot-webroot
+    state: present
+
+- file:
+    path: /var/lib/letsencrypt-webroot
+    group: certbot-webroot
+    state: directory
