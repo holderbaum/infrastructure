@@ -1,0 +1,6 @@
+# Exact structure as provision/group_vars/production/vault.yml
+vault:
+  domains:
+    - example.org
+    - test.example.org
+

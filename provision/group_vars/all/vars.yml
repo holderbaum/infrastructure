@@ -1,0 +1,2 @@
+owner: Jakob Holderbaum
+domains: "{{ vault.domains }}"
