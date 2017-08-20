@@ -1,0 +1,17 @@
+email = root@example.com
+
+domains = example.com, stuff.example.com
+
+# Use a text interface instead of ncurses
+text = True
+# Run without ever asking for user input
+non-interactive = True
+# Enables OCSP Stapling
+staple-ocsp = True
+
+# Use the webroot authenticator
+authenticator = webroot
+webroot-path = {{ acme.webroot }}
+
+# Touch a specific file each time we get a new certificate
+renew-hook = date --iso=min > renewed

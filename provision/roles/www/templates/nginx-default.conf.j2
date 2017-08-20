@@ -2,13 +2,14 @@ server {
     listen       80;
     server_name  localhost;
 
+    # TODO: Remove HTTP access
     location / {
         root   /usr/share/nginx/html;
         index  index.html index.htm;
     }
 
     location /.well-known/acme-challenge {
-        root /var/lib/letsencrypt-webroot;
+        root "{{ acme.webroot }}";
         default_type "text/plain";
         try_files $uri =404;
     }

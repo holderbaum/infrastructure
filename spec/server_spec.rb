@@ -24,6 +24,6 @@ describe 'www' do
     path = '/.well-known/acme-challenge/' + challenge_key
 
     response = Net::HTTP.get_response(external_ip, path)
-    expect(response.body).to eq('test-challenge')
+    expect(response.body).to contain('test-challenge')
   end
 end

@@ -19,6 +19,12 @@
     home: /var/lib/letsencrypt
     shell: /usr/bin/nologin
 
+- name: Allow certbot to access acme webroot
+  user:
+    name: nginx
+    groups: "{{ acme.group }}"
+    append: yes
+
 - file:
     path: '{{ item }}'
     owner: certbot
@@ -28,14 +34,11 @@
   with_items:
     - /etc/letsencrypt
     - /var/lib/letsencrypt
-    - /var/lib/letsencrypt-webroot
     - /var/log/letsencrypt
 
-- group:
-    name: certbot-webroot
-    state: present
-
-- file:
-    path: /var/lib/letsencrypt-webroot
-    group: certbot-webroot
-    state: directory
+- name: Configure certbot
+  template:
+    src: templates/letsencrypt.ini.j2
+    dest: /etc/nginx/conf.d/default.conf
+    owner: nginx
+    mode: "u=rx,g=rx,o-rwx"

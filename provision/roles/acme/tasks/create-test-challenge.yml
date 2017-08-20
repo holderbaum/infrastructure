@@ -1,0 +1,18 @@
+---
+- file:
+    path: "{{ acme.webroot }}/{{ item }}"
+    owner: "{{ acme.user }}"
+    group: "{{ acme.group }}"
+    state: directory
+    mode: "u=rwx,g=rx,o-rwx"
+  with_items:
+    - .well-known
+    - .well-known/acme-challenge
+
+- name: A Create acme test challenge
+  copy:
+    src: files/test-challenge
+    dest: "{{ acme.webroot }}/.well-known/acme-challenge/YYYCT5-SxWTOd1ZJCI-jCEFwdAfavJublNB--RR0kac"
+    owner: "{{ acme.user }}"
+    group: "{{ acme.group }}"
+    mode: "u=rwx,g=rx,o-rwx"
