@@ -1,4 +1,8 @@
 ---
+- set_fact:
+    ssl:
+      certificates_dir: /etc/certificates
+
 - apt_repository:
     repo: ppa:certbot/certbot
     state: present
@@ -32,6 +36,7 @@
     state: directory
     mode: "u=rwx,g=rx,o-rwx"
   with_items:
+    - "{{ ssl.certificates_dir }}"
     - /etc/letsencrypt
     - /var/lib/letsencrypt
     - /var/log/letsencrypt
@@ -42,3 +47,9 @@
     dest: /etc/nginx/conf.d/default.conf
     owner: nginx
     mode: "u=rx,g=rx,o-rwx"
+
+- include: ensure-test-certificates.yml
+  when: "'test' in group_names"
+
+- include: ensure-real-certificates.yml
+  when: "'production' in group_names"
