@@ -1,22 +1,8 @@
 ---
-- name: Create folders for test certificates
-  file:
-    path: "{{ ssl.certificates_dir }}/{{ item }}"
-    owner: certbot
-    group: certbot
-    state: directory
-    mode: "u=rwx,g=rx,o-rwx"
-  with_items: "{{ domains }}"
-
 - name: Generate test certificates
-  shell: |
-    domain="{{ item }}"
-    path="{{ ssl.certificates_dir }}/$domain"
-
-    openssl req -x509 -newkey rsa:2048 \
-      -keyout "${path}/privkey.pem" \
-      -out "${path}/fullchain.pem" \
-      -nodes \
-      -days 365 \
-      -subj "/C=DE/L=Test/OU=Test/CN=${domain}"
+  script: "scripts/create-fake-certificate.sh {{ acme.webroot }} {{ ssl.certificates_dir }} {{ owner.cert_mail }} {{ item }}"
+  args:
+    creates: "{{ ssl.certificates_dir }}/{{ item }}/privkey.pem"
+  become: yes
+  become_user: certbot
   with_items: "{{ domains }}"

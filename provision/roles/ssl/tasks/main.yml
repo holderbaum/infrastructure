@@ -25,6 +25,12 @@
 
 - name: Allow certbot to access acme webroot
   user:
+    name: certbot
+    groups: "{{ acme.group }}"
+    append: yes
+
+- name: Allow certbot to access acme webroot
+  user:
     name: nginx
     groups: "{{ acme.group }}"
     append: yes
@@ -41,12 +47,14 @@
     - /var/lib/letsencrypt
     - /var/log/letsencrypt
 
-- name: Configure certbot
-  template:
-    src: templates/letsencrypt.ini.j2
-    dest: /etc/letsencrypt/letsencrypt.ini
-    owner: nginx
-    mode: "u=rx,g=rx,o-rwx"
+- name: Create folders for certificates
+  file:
+    path: "{{ ssl.certificates_dir }}/{{ item }}"
+    owner: certbot
+    group: certbot
+    state: directory
+    mode: "u=rwx,g=rx,o-rwx"
+  with_items: "{{ domains }}"
 
 - include: ensure-test-certificates.yml
   when: "'test' in group_names"
