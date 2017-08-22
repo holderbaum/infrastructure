@@ -2,4 +2,4 @@
 turing.example.org
 
 [production]
-turing.holderbaum.me
+turing.holderbaum.me ansible_ssh_pipelining=true
