@@ -13,11 +13,6 @@
     state: present
     update_cache: yes
 
-- name: Ensure stopped nginx
-  service:
-    name: nginx
-    state: stopped
-
 - name: Allow nginx to access acme webroot
   user:
     name: nginx
@@ -30,12 +25,8 @@
     dest: /etc/nginx/conf.d/default.conf
     owner: nginx
     mode: "u=rx,g=rx,o-rwx"
-
-#- name: Test group vars
-#  file:
-#    dest: "/{{ item }}"
-#    state: touch
-#  with_items: "{{ domains }}"
+  notify:
+    - reload nginx
 
 - name: Allow HTTP/HTTPS traffic
   ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
@@ -46,6 +37,5 @@
 - name: Ensure running nginx
   service:
     name: nginx
-    state: started
     enabled: yes
 
