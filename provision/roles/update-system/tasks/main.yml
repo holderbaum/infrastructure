@@ -3,6 +3,7 @@
   apt:
     upgrade: dist
     update_cache: yes
+    cache_valid_time: 3600
 
 - name: Check if a reboot is required
   register: reboot_required
