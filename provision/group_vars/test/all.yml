@@ -1,6 +1,15 @@
 # Exact structure as provision/group_vars/production/vault.yml
 vault:
+  owner:
+    pubkeys:
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDQ8CuQF0iIkS955G0XDatQFtKkLRpNsLLshTQgmQiw2w5Wum9DsPcg8f/lGTuMe3Yb7N2KHxB35aFHZITndnq+wG9XH/TyvcNYcas4I6xLEWPmRgyhjHWeY/dG9IjqovqwoY3V4/zAdIFuILyRRQ7fbDrGC9lYb0MiGG6QXkUNXw== testkey"
   domains:
     - example.org
     - test.example.org
+    - blog.example.org
+  static_sites:
+    - name: test
+      domain: test.example.org
+    - name: blog
+      domain: blog.example.org
 

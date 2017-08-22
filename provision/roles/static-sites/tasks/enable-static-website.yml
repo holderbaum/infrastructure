@@ -1,0 +1,44 @@
+---
+- group:
+    name: "deploy-{{ site.name }}"
+    state: present
+
+- name: Generate random password
+  local_action: command pwgen 64 1
+  register: password
+
+# TODO: Restrict deploy user to rsync in ~/www
+- name: Create deploy user
+  user:
+    name: "deploy-{{ site.name }}"
+    group: "deploy-{{ site.name }}"
+    home: "/var/www/deploy-{{ site.name }}"
+    shell: /bin/bash
+    createhome: no
+    password: "{{ password.stdout | password_hash('sha512') }}"
+    update_password: on_create
+
+- file:
+    path: "{{ item }}"
+    owner: "deploy-{{ site.name }}"
+    group: "deploy-{{ site.name }}"
+    state: directory
+    mode: "u=rwx,g=rwx,o=rx"
+  with_items:
+    - "/var/www/deploy-{{ site.name }}"
+    - "/var/www/deploy-{{ site.name }}/www"
+
+- name: Allow access for the server owner
+  authorized_key:
+    user: "deploy-{{ site.name }}"
+    state: present
+    key: '{{ item }}'
+  with_items: "{{ owner.pubkeys }}"
+
+- name: Add nginx configuration
+  template:
+    src: templates/nginx-vhost.conf.j2
+    dest: "/etc/nginx/conf.d/{{ site.name }}.conf"
+    owner: nginx
+    mode: "u=rx,g=rx,o-rwx"
+  

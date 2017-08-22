@@ -1,0 +1,19 @@
+---
+- name: Ensure static site base dir
+  file:
+    path: "/var/www/"
+    owner: "root"
+    group: "root"
+    state: directory
+    mode: "u=rwx,g=rx,o=rx"
+
+- name: Enable static sites
+  include: enable-static-website.yml site={{outer_item}}
+  with_items: "{{ static_sites }}"
+  loop_control:
+    loop_var: outer_item
+
+- name: Reload nginx
+  service:
+    name: nginx
+    state: reloaded

@@ -1,16 +1,14 @@
 server {
-    listen       80;
-    server_name  localhost;
+  listen       80;
+  server_name  localhost;
 
-    # TODO: Remove HTTP access
-    location / {
-        root   /usr/share/nginx/html;
-        index  index.html index.htm;
-    }
+  location /.well-known/acme-challenge {
+    root "{{ acme.webroot }}";
+    default_type "text/plain";
+    try_files $uri =404;
+  }
 
-    location /.well-known/acme-challenge {
-        root "{{ acme.webroot }}";
-        default_type "text/plain";
-        try_files $uri =404;
-    }
+  location / {
+    return 301 https://$host$request_uri;
+  }
 }

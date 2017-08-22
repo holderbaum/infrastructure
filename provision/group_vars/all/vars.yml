@@ -1,2 +1,5 @@
-owner: Jakob Holderbaum
+owner:
+  name: Jakob Holderbaum
+  pubkeys: "{{ vault.owner.pubkeys }}"
 domains: "{{ vault.domains }}"
+static_sites: "{{ vault.static_sites }}"
