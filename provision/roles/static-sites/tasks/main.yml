@@ -12,8 +12,3 @@
   with_items: "{{ static_sites }}"
   loop_control:
     loop_var: outer_item
-
-- name: Reload nginx
-  service:
-    name: nginx
-    state: reloaded

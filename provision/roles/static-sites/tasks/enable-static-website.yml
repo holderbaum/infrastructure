@@ -43,4 +43,5 @@
     dest: "/etc/nginx/conf.d/{{ site.name }}.conf"
     owner: nginx
     mode: "u=rx,g=rx,o-rwx"
-  
+  notify:
+    - reload nginx
