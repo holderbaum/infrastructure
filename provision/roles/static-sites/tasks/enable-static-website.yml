@@ -3,10 +3,6 @@
     name: "deploy-{{ site.name }}"
     state: present
 
-- name: Generate random password
-  local_action: command pwgen 64 1
-  register: password
-
 # TODO: Restrict deploy user to rsync in ~/www
 - name: Create deploy user
   user:
@@ -15,7 +11,7 @@
     home: "/var/www/deploy-{{ site.name }}"
     shell: /bin/bash
     createhome: no
-    password: "{{ password.stdout | password_hash('sha512') }}"
+    password: "{{ lookup('password', '/dev/null length=64') | password_hash('sha512') }}"
     update_password: on_create
 
 - name: Allow nginx to access deploy webroot
