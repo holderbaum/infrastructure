@@ -16,17 +16,20 @@ function ensure_bundle {
 function execute_provisioning {
   local host="$1"
   local ssh_config="$2"
+  shift
+  shift
 
   ansible-playbook \
     -i ./provision/hosts \
     -l "$host" \
     --vault-password-file ./provision/get-vault-pass.sh \
     --ssh-common-args="-F ${ssh_config}" \
-    provision/site.yml
+    provision/site.yml \
+    "$@"
 }
 
 function task_deploy {
-  execute_provisioning turing.holderbaum.me ./deploy/ssh-config
+  execute_provisioning turing.holderbaum.me ./deploy/ssh-config "$@"
 }
 
 function task_test {
@@ -39,9 +42,9 @@ function task_test {
   fi
 
   vagrant ssh-config > .vagrant/ssh-config
-  execute_provisioning "turing.example.org" ".vagrant/ssh-config"
+  execute_provisioning "turing.example.org" ".vagrant/ssh-config" "$@"
 
-  bundle exec rspec
+  bundle exec rspec -f d
 }
 
 function task_usage {
@@ -50,8 +53,9 @@ function task_usage {
 }
 
 task="${1:-}"
+shift || true
 case "$task" in
-  deploy) task_deploy ;;
-  test) task_test ;;
+  deploy) task_deploy "$@" ;;
+  test) task_test "$@" ;;
   *) task_usage ;;
 esac
