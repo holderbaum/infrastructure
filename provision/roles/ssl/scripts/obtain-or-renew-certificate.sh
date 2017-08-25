@@ -20,3 +20,5 @@ certbot \
 cp -Lr \
   "/etc/letsencrypt/live/$domain" \
   "$target_dir"
+
+cat "$target_dir/$domain/privkey.pem" "$target_dir/$domain/fullchain.pem" >"$target_dir/$domain/cert.pem"
