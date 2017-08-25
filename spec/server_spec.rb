@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'xmpp4r'
 
 describe 'infrastructure' do
   before(:all) do
@@ -16,6 +17,50 @@ describe 'infrastructure' do
 
   describe service('ufw') do
     it { should be_running }
+  end
+
+  describe 'xmpp' do
+    let(:host) { 'xmpp.example.org' }
+    let(:user) { 'testuser' }
+    let(:pass) { 'testpass' }
+
+    before do
+      Jabber.debug = false
+      register_fake_host external_ip, host
+    end
+
+    it 'should do proper starttls' do
+      # openssl s_client
+      #   -connect 172.28.128.3:5222
+      #   -starttls xmpp
+      #   -xmpphost xmpp.example.org
+      #   </dev/null
+    end
+
+    it 'should allow login' do
+      jid = Jabber::JID.new "#{user}@#{host}"
+      client = Jabber::Client.new jid
+      client.connect
+      client.auth pass
+    end
+
+    it 'should deny unauthorized connections' do
+      jid = Jabber::JID.new "#{user}@#{host}"
+      client = Jabber::Client.new jid
+      client.connect
+      expect do
+        client.auth_anonymous
+      end.to raise_error(Jabber::ClientAuthenticationFailure)
+    end
+
+    it 'should deny registrations' do
+      jid = Jabber::JID.new "#{user}2@#{host}"
+      client = Jabber::Client.new jid
+      client.connect
+      expect do
+        client.register pass
+      end.to raise_error(Jabber::ServerError)
+    end
   end
 
   describe 'www' do
