@@ -1,0 +1,207 @@
+loglevel: 4
+
+log_rotate_size: 0
+log_rotate_date: ""
+log_rate_limit: 100
+
+hosts:
+  - "{{ xmpp.domain }}"
+
+define_macro:
+  'CERTFILE': "{{ ssl.certificates_dir }}/{{ xmpp.domain }}/cert.pem"
+  'CIPHERS': ""
+  'TLSOPTS':
+    - "no_sslv3"
+    - "no_tlsv1"
+    - "no_tlsv1_1"
+    - "cipher_server_preference"
+    - "no_compression"
+  'DHFILE': "{{ ejabberd_pathes.dhparam_file }}"
+
+listen:
+  - 
+    port: 5222
+    ip: "::"
+    module: ejabberd_c2s
+    starttls: true
+    certfile: 'CERTFILE'
+    protocol_options: 'TLSOPTS'
+    dhfile: 'DHFILE'
+    # ciphers: 'CIPHERS'
+    starttls_required: true
+    ## zlib: true
+    max_stanza_size: 65536
+    shaper: c2s_shaper
+    access: c2s
+  - 
+    port: 5269
+    ip: "::"
+    module: ejabberd_s2s_in
+    max_stanza_size: 131072
+    shaper: s2s_shaper
+
+s2s_use_starttls: required
+s2s_certfile: 'CERTFILE'
+s2s_protocol_options: 'TLSOPTS'
+
+auth_method: internal
+auth_password_format: scram
+fqdn: "{{ xmpp.domain }}"
+
+shaper:
+  normal: 1000
+  fast: 50000
+
+max_fsm_queue: 1000
+
+acl:
+  local:
+    user_regexp: ""
+
+  loopback:
+    ip:
+      - "127.0.0.0/8"
+
+shaper_rules:
+  max_user_sessions: 10
+  max_user_offline_messages: 100
+  c2s_shaper: normal
+  s2s_shaper: fast
+
+
+language: "en"
+
+access:
+  max_user_sessions:
+    all: 10
+  max_user_offline_messages:
+    all: 100
+  local:
+    local: allow
+  c2s:
+    all: allow
+  c2s_shaper:
+    all: normal
+  s2s_shaper:
+    all: fast
+  muc:
+    all: allow
+  register:
+    all: deny
+  trusted_network:
+    all: deny
+  # all: allow
+
+modules:
+  mod_adhoc: {}
+  mod_admin_extra: {}
+  mod_announce: # recommends mod_adhoc
+    access: announce
+  mod_blocking: {} # requires mod_privacy
+  mod_caps: {}
+  mod_carboncopy: {}
+  mod_client_state: {}
+  mod_configure: {} # requires mod_adhoc
+  ## mod_delegation: {} # for xep0356
+  mod_disco: {}
+  ## mod_echo: {}
+  ## mod_irc: {}
+  mod_bosh: {}
+  ## mod_http_fileserver:
+  ##   docroot: "/var/www"
+  ##   accesslog: "/opt/ejabberd-17.08/logs/access.log"
+  ## mod_http_upload:
+  ##   # docroot: "@HOME@/upload"
+  ##   put_url: "https://@HOST@:5444"
+  ##   thumbnail: false # otherwise needs the identify command from ImageMagick installed
+  ## mod_http_upload_quota:
+  ##   max_days: 30
+  mod_last: {}
+  ## XEP-0313: Message Archive Management
+  ## You might want to setup a SQL backend for MAM because the mnesia database is
+  ## limited to 2GB which might be exceeded on large servers
+  ## mod_mam: {} # for xep0313, mnesia is limited to 2GB, better use an SQL backend
+  mod_muc:
+    ## host: "conference.@HOST@"
+    access:
+      - allow
+    access_admin:
+      - allow: admin
+    access_create: muc_create
+    access_persistent: muc_create
+  mod_muc_admin: {}
+  ## mod_muc_log: {}
+  ## mod_multicast: {}
+  mod_offline:
+    access_max_user_messages: max_user_offline_messages
+  mod_ping: {}
+  ## mod_pres_counter:
+  ##   count: 5
+  ##   interval: 60
+  mod_privacy: {}
+  mod_private: {}
+  ## mod_proxy65: {}
+  mod_pubsub:
+    access_createnode: pubsub_createnode
+    ## reduces resource comsumption, but XEP incompliant
+    ignore_pep_from_offline: true
+    ## XEP compliant, but increases resource comsumption
+    ## ignore_pep_from_offline: false
+    last_item_cache: false
+    plugins:
+      - "flat"
+      - "pep" # pep requires mod_caps
+  mod_register:
+    ##
+    ## Protect In-Band account registrations with CAPTCHA.
+    ##
+    ##   captcha_protected: true
+    ##
+    ## Set the minimum informational entropy for passwords.
+    ##
+    ##   password_strength: 32
+    ##
+    ## After successful registration, the user receives
+    ## a message with this subject and body.
+    ##
+    welcome_message:
+      subject: "Welcome!"
+      body: |-
+        Hi.
+        Welcome to this XMPP server.
+    ##
+    ## When a user registers, send a notification to
+    ## these XMPP accounts.
+    ##
+    ##   registration_watchers:
+    ##     - "admin1@example.org"
+    ##
+    ## Only clients in the server machine can register accounts
+    ##
+    ip_access: trusted_network
+    ##
+    ## Local c2s or remote s2s users cannot register accounts
+    ##
+    ##   access_from: deny
+    access: register
+  mod_roster: {}
+  mod_shared_roster: {}
+  ## mod_stats: {}
+  ## mod_time: {}
+  mod_vcard:
+    search: false
+  mod_version: {}
+  mod_stream_mgmt: {}
+  ##   Non-SASL Authentication (XEP-0078) is now disabled by default
+  ##   because it's obsoleted and is used mostly by abandoned
+  ##   client software
+  ## mod_legacy_auth: {}
+  ##   The module for S2S dialback (XEP-0220). Please note that you cannot
+  ##   rely solely on dialback if you want to federate with other servers,
+  ##   because a lot of servers have dialback disabled and instead rely on
+  ##   PKIX authentication. Make sure you have proper certificates installed
+  ##   and check your accessibility at https://xmpp.net/
+  mod_s2s_dialback: {}
+  mod_http_api: {}
+
+allow_contrib_modules: true

@@ -1,0 +1,17 @@
+[Unit]
+Description=XMPP Server
+After=network.target
+
+[Service]
+User=ejabberd
+Group=ejabberd
+LimitNOFILE=65536
+Restart=on-failure
+RestartSec=5
+ExecStart=/opt/ejabberd/bin/ejabberdctl --config-dir /etc/ejabberd --config /etc/ejabberd/ejabberd.yml --spool /data/ejabberd/spool foreground
+ExecStop=/opt/ejabberd/bin/ejabberdctl --config-dir /etc/ejabberd --config /etc/ejabberd/ejabberd.yml --spool /data/ejabberd/spool stop
+PrivateDevices=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

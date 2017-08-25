@@ -3,4 +3,7 @@ owner:
   cert_mail: "{{ vault.owner.cert_mail }}"
   pubkeys: "{{ vault.owner.pubkeys }}"
 domains: "{{ vault.domains }}"
+xmpp:
+  domain: "{{ vault.xmpp.domain }}"
+  users: "{{ vault.xmpp.users }}"
 static_sites: "{{ vault.static_sites }}"

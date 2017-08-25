@@ -1,55 +1,117 @@
 ---
-- include_vars: keys.yml
+- set_fact:
+    ejabberd:
+      version: '17.08'
+      checksum: 'sha256:f65dbc4b344473f9d4f572667c5c44b21579cfae85d3c807964d300e6cef31ef'
+      home_dir: '{{ data_dir }}/ejabberd'
 
-- apt_repository:
-    repo: deb https://packages.prosody.im/debian xenial main
+- set_fact:
+    ejabberd_pathes:
+      dhparam_file: '{{ ejabberd.home_dir }}/dhparams.pem'
+      deb_file: '{{ ejabberd.home_dir }}/ejabberd_{{ ejabberd.version }}-0_amd64.deb'
+
+- group:
+    name: ejabberd
     state: present
+  register: ejabbered_group_created_first_time
 
-- apt_key:
-    url: https://prosody.im/files/prosody-debian-packages.key
-    id: 107D65A0A148C237FDF00AB47393D7E674D9DBB5
+- name: Create ejabberd user
+  user:
+    name: ejabberd
+    group: ejabberd
+    home: "{{ ejabberd.home_dir }}"
+    shell: /bin/false
+    createhome: no
+  when: ejabbered_group_created_first_time.changed
 
-- name: Install prosody
-  apt: 
-    package: prosody
-    state: present
+- name: Create ejabberd directories
+  file:
+    path: "{{ item }}"
+    owner: ejabberd
+    group: ejabberd
+    state: directory
+    mode: "u=rwx,g=rx,o-rwx"
+  with_items:
+    - "/etc/ejabberd"
+    - "{{ ejabberd.home_dir }}"
+    - "{{ ejabberd.home_dir }}/spool"
 
-- name: Ensure stopped prosody
+- name: Download ejabberd
+  get_url:
+    url: 'https://www.process-one.net/downloads/downloads-action.php?file=/ejabberd/{{ ejabberd.version }}/ejabberd_{{ ejabberd.version }}-0_amd64.deb'
+    dest: '{{ ejabberd_pathes.deb_file }}'
+    checksum: '{{ ejabberd.checksum }}'
+
+- name: Generate DH params
+  command: "openssl dhparam -out {{ ejabberd_pathes.dhparam_file }} 2048"
+  args:
+    creates: '{{ ejabberd_pathes.dhparam_file }}'
+
+- name: Fix DH params ownership
+  file:
+    path: '{{ ejabberd_pathes.dhparam_file }}'
+    owner: ejabberd
+    group: ejabberd
+    mode: "u=r,g=r,o-rwx"
+    state: file
+
+- name: Install ejabberd
+  apt:
+    deb: '{{ ejabberd_pathes.deb_file }}'
+  register: installation
+
+- name: Remove obsolete ejabberd directories
+  file:
+    path: /opt/ejabberd
+    state: absent
+  when: installation.changed
+
+- file:
+    src: "/opt/ejabberd-{{ ejabberd.version }}"
+    dest: /opt/ejabberd
+    owner: ejabberd
+    group: ejabberd
+    state: link
+  when: installation.changed
+
+- name: Allow access to certificates
+  user:
+    name: ejabberd
+    groups: certbot
+    append: yes
+
+- name: Create ejabberd config
+  template:
+    src: templates/ejabberd.yml.j2
+    dest: /etc/ejabberd/ejabberd.yml
+    mode: 0440
+    owner: ejabberd
+    group: ejabberd
+  notify:
+    - restart ejabberd
+
+- name: Create ejabberd systemd unit
+  copy:
+    src: files/ejabberd.service
+    dest: /etc/systemd/system/ejabberd.service
+    mode: 0440
+  notify:
+    - restart ejabberd
+
+- name: Allow XMPP traffic
+  ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
+  with_items:
+    - { rule: 'allow', port: '5222', proto: 'tcp' }
+    - { rule: 'allow', port: '5269', proto: 'tcp' }
+
+- name: Ensure running ejabberd
   service:
-    name: prosody
-    state: stopped
+    name: ejabberd
+    state: started
+    enabled: yes
 
-# - name: Create ejabberd certificate (if not present)
-#   copy:
-#     content: "{{ keys.cert }}"
-#     dest: /etc/ejabberd/cert.pem
-#     force: no
-# 
-# - name: Enforce ejabberd certificate mode
-#   file:
-#     path: /etc/ejabberd/cert.pem
-#     mode: 0440
-#     owner: ejabberd
-#     group: ejabberd
-# 
-# - name: Create data directory
-#   file:
-#     dest: "{{ data_dir }}/ejabberd"
-#     state: directory
-#     mode: 0700
-#     owner: ejabberd
-#     group: ejabberd
-# 
-# - name: Create ejabberd config
-#   template:
-#     src: ejabberd.yml.j2
-#     dest: /etc/ejabberd/ejabberd.yml
-#     mode: 0440
-#     owner: ejabberd
-#     group: ejabberd
-# 
-# - name: Ensure running ejabberd
-#   service:
-#     name: ejabberd
-#     state: started
-#     enabled: yes
+- name: Register XMPP users
+  script: 'scripts/register-user.sh "{{ item.name }}" "{{ xmpp.domain }}" "{{ item.password }}"'
+  become: yes
+  become_user: ejabberd
+  with_items: '{{ xmpp.users }}'

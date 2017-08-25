@@ -8,6 +8,12 @@ vault:
     - example.org
     - test.example.org
     - blog.example.org
+    - xmpp.example.org
+  xmpp:
+    domain: xmpp.example.org
+    users:
+      - name: testuser
+        password: testpass
   static_sites:
     - name: test
       domain: test.example.org
