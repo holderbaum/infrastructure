@@ -68,6 +68,7 @@ describe 'infrastructure' do
       rsync_cmd = ['rsync',
                    '-r',
                    "-e '#{ssh_cmd}'",
+                   '--chmod 640',
                    html_file.path,
                    "deploy-blog@#{external_ip}:www/index.html"].join ' '
       `#{rsync_cmd} 2>/dev/null`
