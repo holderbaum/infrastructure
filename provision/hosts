@@ -1,5 +1,5 @@
 [test]
-turing.example.org
+turing.example.org ansible_ssh_pipelining=true
 
 [production]
 turing.holderbaum.me ansible_ssh_pipelining=true
