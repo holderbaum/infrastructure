@@ -34,7 +34,7 @@ module Helpers
   end
 
   def register_fake_host(ip, host)
-    File.open(@fake_hosts.path, 'w+') do |f|
+    File.open(@fake_hosts.path, 'a+') do |f|
       f << "#{ip} #{host}\n"
     end
   end
