@@ -22,8 +22,8 @@
 
 - name: Wait for server to start again
   wait_for:
+    host: '{{ ansible_host }}'
     port: 22
-    host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
     search_regex: OpenSSH
     delay: 10
     timeout: 300
