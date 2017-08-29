@@ -21,22 +21,18 @@ module Helpers
     `cat tmp/vagrant-host-ip`.strip
   end
 
-  def setup_fake_hosts
-    @fake_hosts = Tempfile.create('hosts')
-    hosts_resolver = Resolv::Hosts.new(@fake_hosts.path)
+  def setup_fake_hosts(hosts)
+    fake_hosts = Tempfile.create('hosts')
+    File.open(fake_hosts.path, 'w') do |f|
+      hosts.each do |host|
+        f << "#{external_ip} #{host}\n"
+      end
+    end
+
+    hosts_resolver = Resolv::Hosts.new(fake_hosts.path)
     dns_resolver = Resolv::DNS.new
 
     Resolv::DefaultResolver.replace_resolvers([hosts_resolver, dns_resolver])
-  end
-
-  def register_fake_host(ip, host)
-    File.open(@fake_hosts.path, 'a+') do |f|
-      f << "#{ip} #{host}\n"
-    end
-  end
-
-  def clear_fake_hosts
-    File.truncate @fake_hosts.path, 0
   end
 
   def get(url)

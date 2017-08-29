@@ -4,11 +4,10 @@ require 'xmpp4r'
 describe 'infrastructure' do
   before(:all) do
     setup_ssh_backend
-    setup_fake_hosts
-  end
-
-  after do
-    clear_fake_hosts
+    setup_fake_hosts [
+      'xmpp.example.org',
+      'blog.example.org'
+    ]
   end
 
   describe port(22) do
@@ -26,7 +25,6 @@ describe 'infrastructure' do
 
     before do
       Jabber.debug = false
-      register_fake_host external_ip, host
     end
 
     it 'should do proper starttls' do
@@ -89,8 +87,6 @@ describe 'infrastructure' do
     let(:host) { 'blog.example.org' }
 
     it 'should redirect to https' do
-      register_fake_host external_ip, host
-
       response = get 'http://blog.example.org/foo/bar'
       expect(response.status).to be(301)
       location = response.headers['location']
@@ -98,8 +94,6 @@ describe 'infrastructure' do
     end
 
     it 'should allow for uploading' do
-      register_fake_host external_ip, host
-
       content = "test page #{rand 1000}"
 
       html_file = Tempfile.create
