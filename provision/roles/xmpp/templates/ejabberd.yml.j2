@@ -21,7 +21,7 @@ define_macro:
 listen:
   - 
     port: 5222
-    ip: "::"
+    ip: "0.0.0.0"
     module: ejabberd_c2s
     starttls: true
     certfile: 'CERTFILE'
@@ -35,7 +35,7 @@ listen:
     access: c2s
   - 
     port: 5269
-    ip: "::"
+    ip: "0.0.0.0"
     module: ejabberd_s2s_in
     max_stanza_size: 131072
     shaper: s2s_shaper
