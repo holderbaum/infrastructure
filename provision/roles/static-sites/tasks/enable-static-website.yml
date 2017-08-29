@@ -44,4 +44,4 @@
     owner: nginx
     mode: "u=rx,g=rx,o-rwx"
   notify:
-    - reload nginx
+    - restart nginx
