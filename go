@@ -62,8 +62,11 @@ function task_test {
     vagrant up
   fi
 
+  local ip
+  ip="$(vagrant ssh -c 'hostname -I |cut -d" " -f2' 2>/dev/null)"
+
   execute_provisioning \
-    'turing.example.org:172.28.128.3' \
+    "turing.example.org:${ip}" \
     'no-host-checking' \
     '.vagrant/machines/turing.example.org/virtualbox/private_key'
 
