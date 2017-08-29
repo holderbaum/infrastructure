@@ -26,7 +26,6 @@
     port: 22
     search_regex: OpenSSH
     delay: 10
-    timeout: 300
   connection: local
   when: reboot_required.stat.exists == true
 
