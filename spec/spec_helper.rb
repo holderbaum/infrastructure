@@ -9,11 +9,7 @@ module Helpers
     set :backend, :ssh
     host = 'turing.example.org'
 
-    config = Tempfile.new('', Dir.tmpdir)
-    config.write(`vagrant ssh-config #{host}`)
-    config.close
-
-    options = Net::SSH::Config.for(host, [config.path])
+    options = Net::SSH::Config.for(host, ['tmp/ssh-config'])
     set :ssh_options, options
   end
 
@@ -22,7 +18,7 @@ module Helpers
   end
 
   def determine_external_ip
-    `vagrant ssh -c "hostname -I |cut -d' ' -f2" 2>/dev/null`.strip
+    `cat tmp/vagrant-host-ip`.strip
   end
 
   def setup_fake_hosts

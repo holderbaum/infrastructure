@@ -53,24 +53,44 @@ function task_deploy {
     ./deploy/known_hosts
 }
 
+function setup_vagrant {
+  if vagrant status |grep active &>/dev/null; then
+    return 0
+  fi
+
+  mkdir -p tmp
+
+  if [ ! -f tmp/test_rsa_id ]; then
+    ssh-keygen -t rsa -b1024 -f tmp/test_rsa_id -N ''
+  fi
+
+  vagrant up
+
+  vagrant ssh-config > tmp/ssh-config
+
+  grep HostName tmp/ssh-config |cut -d' ' -f4 > tmp/vagrant-host-ip
+}
+
 function task_test {
   ensure_bundle
   bundle exec rubocop -f emacs
 
-  if ! vagrant status |grep running &>/dev/null;
-  then
-    vagrant up
-  fi
+  setup_vagrant
 
   local ip
-  ip="$(vagrant ssh -c 'hostname -I |cut -d" " -f2' 2>/dev/null)"
+  ip="$(cat ./tmp/vagrant-host-ip)"
 
   execute_provisioning \
     "turing.example.org:${ip}" \
     'no-host-checking' \
-    '.vagrant/machines/turing.example.org/virtualbox/private_key'
+    './tmp/test_rsa_id'
 
   bundle exec rspec -f d
+}
+
+function task_clean {
+  vagrant destroy -f || true
+  rm -fr tmp .vagrant
 }
 
 function task_usage {
@@ -83,5 +103,6 @@ shift || true
 case "$task" in
   deploy) task_deploy "$@" ;;
   test) task_test "$@" ;;
+  clean) task_clean ;;
   *) task_usage ;;
 esac
