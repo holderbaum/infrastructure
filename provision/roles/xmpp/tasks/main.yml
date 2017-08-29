@@ -110,6 +110,14 @@
     state: started
     enabled: yes
 
+- name: Wait for ejabberd service to become available
+  wait_for:
+    host: '{{ ansible_host }}'
+    port: '{{ item }}'
+  with_items:
+    - '5222'
+    - '5269'
+
 - name: Register XMPP users
   script: 'scripts/register-user.sh "{{ item.name }}" "{{ xmpp.domain }}" "{{ item.password }}"'
   become: yes
