@@ -3,6 +3,7 @@ require 'tempfile'
 require 'resolv-replace'
 require 'tempfile'
 require 'faraday'
+require 'rspec/wait'
 
 module Helpers
   def setup_ssh_backend

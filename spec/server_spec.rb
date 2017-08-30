@@ -10,8 +10,10 @@ describe 'infrastructure' do
     ]
   end
 
-  describe port(22) do
-    it { should be_listening }
+  describe 'ssh' do
+    it 'should be reachable' do
+      wait_for { port 22 }.to be_listening.with 'tcp'
+    end
   end
 
   describe service('ufw') do
@@ -25,6 +27,14 @@ describe 'infrastructure' do
 
     before do
       Jabber.debug = false
+    end
+
+    it 'should be reachable for c2s' do
+      wait_for { port 5222 }.to be_listening.with 'tcp'
+    end
+
+    it 'should be reachable for c2c' do
+      wait_for { port 5269 }.to be_listening.with 'tcp'
     end
 
     it 'should do proper starttls' do
@@ -62,8 +72,8 @@ describe 'infrastructure' do
   end
 
   describe 'www' do
-    describe port(80) do
-      it { should be_listening }
+    it 'should be reachable' do
+      wait_for { port 80 }.to be_listening.with 'tcp'
     end
 
     it 'should redirect to https' do
