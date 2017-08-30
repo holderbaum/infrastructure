@@ -1,7 +1,9 @@
 /.vagrant
 /.bundle
 /vendor
+/.terraform
 
 *.retry
 *.log
+*.tfstate*
 /tmp

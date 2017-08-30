@@ -18,7 +18,7 @@ module Helpers
   end
 
   def determine_external_ip
-    `cat tmp/vagrant-host-ip`.strip
+    `cat tmp/host-ip`.strip
   end
 
   def setup_fake_hosts(hosts)

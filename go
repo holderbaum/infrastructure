@@ -2,6 +2,38 @@
 
 set -eu
 
+export TF_VAR_do_token="${DIGITAL_OCEAN_API_TOKEN}"
+export TERRAFORM_PATH
+
+function ensure_terraform {
+  if [ -z "${TERRAFORM_PATH:-}" ]; then
+    which terraform
+    if which terraform &>/dev/null; then
+      TERRAFORM_PATH="$(which terraform)"
+    else
+      download_terraform
+      TERRAFORM_PATH="$(pwd)./tmp/terraform"
+    fi
+  fi
+}
+
+function download_terraform {
+  if [ ! -f tmp/terraform ]; then
+  mkdir -p tmp
+  curl -Lo tmp/tf.zip https://releases.hashicorp.com/terraform/0.10.2/terraform_0.10.2_linux_amd64.zip
+    (
+      cd tmp
+      unzip tf.zip
+      rm tf.zip
+    )
+  fi
+}
+
+function terraform {
+  ${TERRAFORM_PATH} "$@"
+}
+
+
 function ensure_bundle {
   if [ ! -d vendor/bundle ]; then
       bundle install --path vendor/bundle
@@ -53,10 +85,8 @@ function task_deploy {
     ./deploy/known_hosts
 }
 
-function setup_vagrant {
-  if vagrant status |grep active &>/dev/null; then
-    return 0
-  fi
+function setup_test_machine {
+  ensure_terraform
 
   mkdir -p tmp
 
@@ -64,21 +94,33 @@ function setup_vagrant {
     ssh-keygen -t rsa -b1024 -f tmp/test_rsa_id -N ''
   fi
 
-  vagrant up
+  local ip
 
-  vagrant ssh-config > tmp/ssh-config
+  terraform init
+  terraform apply
+  ip="$(terraform output ip)"
 
-  grep HostName tmp/ssh-config |cut -d' ' -f4 > tmp/vagrant-host-ip
+  echo "Host turing.example.org" > tmp/ssh-config
+  echo "  HostName ${ip}" >> tmp/ssh-config
+  echo "  User root" >> tmp/ssh-config
+  echo "  IdentityFile ./tmp/test_rsa_id" >> tmp/ssh-config
+  echo "  UserKnownHostsFile /dev/null" >> tmp/ssh-config
+  echo "  StrictHostKeyChecking no" >> tmp/ssh-config
+
+  echo "$ip" >tmp/host-ip
+
+  # wait for host to come online
+  # ssh -q -F tmp/ssh-config turing.example.org exit
 }
 
 function task_test {
   ensure_bundle
   bundle exec rubocop -f emacs
 
-  setup_vagrant
+  setup_test_machine
 
   local ip
-  ip="$(cat ./tmp/vagrant-host-ip)"
+  ip="$(cat ./tmp/host-ip)"
 
   execute_provisioning \
     "turing.example.org:${ip}" \
@@ -89,8 +131,10 @@ function task_test {
 }
 
 function task_clean {
-  vagrant destroy -f || true
-  rm -fr tmp .vagrant
+  ensure_terraform
+
+  terraform destroy -force
+  rm -fr tmp terraform.tfstate*
 }
 
 function task_usage {
