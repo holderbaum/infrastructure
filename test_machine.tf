@@ -9,7 +9,7 @@ resource "digitalocean_ssh_key" "default" {
   public_key = "${file("./tmp/test_rsa_id.pub")}"
 }
 
-resource "digitalocean_droplet" "web" {
+resource "digitalocean_droplet" "test_machine" {
   image = "ubuntu-16-04-x64"
   name = "turing.example.org"
   region = "fra1"
@@ -18,6 +18,6 @@ resource "digitalocean_droplet" "web" {
 }
 
 output "ip" {
-  value = "${digitalocean_droplet.web.ipv4_address}"
+  value = "${digitalocean_droplet.test_machine.ipv4_address}"
 }
 
