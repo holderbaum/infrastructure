@@ -120,6 +120,7 @@ function setup_test_machine {
 function task_test {
   ensure_bundle
   bundle exec rubocop -f emacs
+  bundle exec travis lint -x
 
   setup_test_machine
 
