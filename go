@@ -7,12 +7,11 @@ export TERRAFORM_PATH
 
 function ensure_terraform {
   if [ -z "${TERRAFORM_PATH:-}" ]; then
-    which terraform
     if which terraform &>/dev/null; then
       TERRAFORM_PATH="$(which terraform)"
     else
       download_terraform
-      TERRAFORM_PATH="$(pwd)./tmp/terraform"
+      TERRAFORM_PATH="$(pwd)/tmp/terraform"
     fi
   fi
 }
@@ -30,6 +29,8 @@ function download_terraform {
 }
 
 function terraform {
+  test -n "${TERRAFORM_PATH:-}" || return 1
+
   ${TERRAFORM_PATH} "$@"
 }
 
@@ -131,9 +132,7 @@ function task_test {
 }
 
 function task_clean {
-  ensure_terraform
-
-  terraform destroy -force
+  terraform destroy -force || true
   rm -fr tmp terraform.tfstate*
 }
 
