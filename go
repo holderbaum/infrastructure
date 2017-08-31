@@ -3,16 +3,10 @@
 set -eu
 
 export TF_VAR_do_token="${DIGITAL_OCEAN_API_TOKEN}"
-export TERRAFORM_PATH
 
 function ensure_terraform {
-  if [ -z "${TERRAFORM_PATH:-}" ]; then
-    if which terraform &>/dev/null; then
-      TERRAFORM_PATH="$(which terraform)"
-    else
+  if [ ! -f tmp/terraform ]; then
       download_terraform
-      TERRAFORM_PATH="$(pwd)/tmp/terraform"
-    fi
   fi
 }
 
@@ -29,9 +23,9 @@ function download_terraform {
 }
 
 function terraform {
-  test -n "${TERRAFORM_PATH:-}" || return 1
+  test -f tmp/terraform || return
 
-  ${TERRAFORM_PATH} "$@"
+  tmp/terraform "$@"
 }
 
 
@@ -134,6 +128,7 @@ function task_test {
 }
 
 function task_clean {
+  ensure_terraform
   terraform destroy -force || true
   rm -fr tmp terraform.tfstate*
 }
