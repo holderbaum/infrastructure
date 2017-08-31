@@ -101,12 +101,14 @@ function setup_test_machine {
   terraform apply
   ip="$(terraform output ip)"
 
-  echo "Host turing.example.org" > tmp/ssh-config
-  echo "  HostName ${ip}" >> tmp/ssh-config
-  echo "  User root" >> tmp/ssh-config
-  echo "  IdentityFile ./tmp/test_rsa_id" >> tmp/ssh-config
-  echo "  UserKnownHostsFile /dev/null" >> tmp/ssh-config
-  echo "  StrictHostKeyChecking no" >> tmp/ssh-config
+  {
+    echo "Host turing.example.org"
+    echo "  HostName ${ip}"
+    echo "  User root"
+    echo "  IdentityFile ./tmp/test_rsa_id"
+    echo "  UserKnownHostsFile /dev/null"
+    echo "  StrictHostKeyChecking no"
+  } > tmp/ssh-config
 
   echo "$ip" >tmp/host-ip
 
