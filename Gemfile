@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'faraday'
+gem 'rspec-wait'
 gem 'rubocop'
 gem 'serverspec'
-gem 'rspec-wait'
 gem 'xmpp4r'
