@@ -40,6 +40,13 @@ function ensure_bundle {
   fi
 }
 
+function task_prepare_ci {
+  sudo apt-get install -y software-properties-common
+  sudo apt-add-repository -y ppa:ansible/ansible
+  sudo apt-get update -y
+  sudo apt-get install -y ansible
+}
+
 function execute_provisioning {
   local target="$1"
   local known_hosts="$2"
@@ -141,6 +148,7 @@ function task_usage {
 task="${1:-}"
 shift || true
 case "$task" in
+  prepare-ci) task_prepare_ci ;;
   deploy) task_deploy "$@" ;;
   test) task_test "$@" ;;
   clean) task_clean ;;
