@@ -125,16 +125,15 @@ describe 'infrastructure' do
       html_file.close
 
       ssh_cmd = ['ssh',
-                 '-o UserKnownHostsFile=/dev/null',
-                 '-o StrictHostKeyChecking=no',
+                 '-F tmp/ssh-config',
                  '-i ./spec/assets/id_rsa'].join ' '
       rsync_cmd = ['rsync',
                    '-r',
                    "-e '#{ssh_cmd}'",
                    '--chmod 640',
                    html_file.path,
-                   "deploy-blog@#{external_ip}:www/index.html"].join ' '
-      `#{rsync_cmd} 2>/dev/null`
+                   'deploy-blog@turing.example.org:www/index.html'].join ' '
+      `#{rsync_cmd}`
 
       response = get_no_verify 'https://blog.example.org/'
       expect(response.status).to be(200)
