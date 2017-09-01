@@ -46,4 +46,5 @@ end
 
 RSpec.configure do |c|
   c.include Helpers
+  c.wait_timeout = 60 # seconds
 end
