@@ -36,18 +36,18 @@ initialized from rescue mode like this (copy & paste me):
 ```
 {
   echo "DRIVE1 /dev/sda"
-  echo DRIVE2 /dev/sdb
+  echo "DRIVE2 /dev/sdb"
   echo
-  echo SWRAID 1
-  echo SWRAIDLEVEL 1
+  echo "SWRAID 1"
+  echo "SWRAIDLEVEL 1"
   echo
-  echo BOOTLOADER grub
-  echo HOSTNAME turing.holderbaum.me
+  echo "BOOTLOADER grub"
+  echo "HOSTNAME turing.holderbaum.me"
   echo
-  echo PART /boot ext3  1G
-  echo PART /     ext4 all
+  echo "PART /boot ext3  1G"
+  echo "PART /     ext4 all"
   echo
-  echo IMAGE /root/images/Ubuntu-1604-xenial-64-minimal.tar.gz
+  echo "IMAGE /root/images/Ubuntu-1604-xenial-64-minimal.tar.gz"
 } > /autosetup
 installimage
 reboot
