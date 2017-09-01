@@ -63,6 +63,7 @@ function setup_test_machine {
 
   if [ ! -f tmp/test_rsa_id ]; then
     ssh-keygen -t rsa -b1024 -f tmp/test_rsa_id -N ''
+    chmod 600 tmp/test_rsa_id
   fi
 
   terraform init -input=false
@@ -113,6 +114,7 @@ function task_test {
     --extra-vars="env=test ansible_ssh_common_args='-F ./tmp/ssh-config'" \
     provision/site.yml
 
+  chmod 600 spec/assets/id_rsa
   bundle exec rspec --format documentation
 }
 
