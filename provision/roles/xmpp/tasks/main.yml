@@ -90,6 +90,12 @@
   notify:
     - restart ejabberd
 
+- name: Ensure ejabberd inetrc
+  copy:
+    content: ""
+    dest: /etc/ejabberd/inetrc
+    mode: 0644
+
 - name: Create ejabberd systemd unit
   copy:
     src: files/ejabberd.service
