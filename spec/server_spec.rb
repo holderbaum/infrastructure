@@ -1,6 +1,8 @@
 require 'spec_helper'
 require 'xmpp4r'
 
+HAD_FAILURE = false
+
 describe 'infrastructure' do
   before(:all) do
     setup_ssh_backend
@@ -8,6 +10,18 @@ describe 'infrastructure' do
       'xmpp.example.org',
       'blog.example.org'
     ]
+  end
+
+  after(:each) do |example|
+    HAD_FAILURE = true if example.exception
+  end
+
+  after(:all) do
+    if HAD_FAILURE
+      journal = `ssh -F tmp/ssh-config turing.example.org journalctl -b`
+      puts 'Saved test machine journal:'
+      puts journal
+    end
   end
 
   describe 'ssh' do
