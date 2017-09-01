@@ -44,6 +44,7 @@
   with_items:
     - "{{ ssl.certificates_dir }}"
     - /etc/letsencrypt
+    - /etc/letsencrypt/live
     - /var/lib/letsencrypt
     - /var/log/letsencrypt
 
@@ -56,8 +57,10 @@
     mode: "u=rwx,g=rx,o-rwx"
   with_items: "{{ domains }}"
 
-- include: ensure-test-certificates.yml
-  when: "'test' in group_names"
-
-- include: ensure-real-certificates.yml
-  when: "'production' in group_names"
+- name: Generate certificates
+  script: "scripts/obtain-or-renew-certificate.sh {{ acme.webroot }} {{ ssl.certificates_dir }} {{ owner.cert_mail }} {{ item }} {{ env }}"
+  args:
+    creates: "{{ ssl.certificates_dir }}/{{ item }}/privkey.pem"
+  become: yes
+  become_user: certbot
+  with_items: "{{ domains }}"
