@@ -11,15 +11,12 @@ module Helpers
     host = 'turing.example.org'
 
     options = Net::SSH::Config.for(host, ['tmp/ssh-config'])
+    @external_ip = options[:host_name]
     set :ssh_options, options
   end
 
   def external_ip
-    @external_ip ||= determine_external_ip
-  end
-
-  def determine_external_ip
-    `cat tmp/host-ip`.strip
+    @external_ip
   end
 
   def setup_fake_hosts(hosts)

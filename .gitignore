@@ -1,6 +1,6 @@
 /.vagrant
 /.bundle
-/vendor
+/.vendor
 /.terraform
 
 *.retry

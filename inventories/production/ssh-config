@@ -1,0 +1,4 @@
+Host turing.holderbaum.me
+  User root
+  UserKnownHostsFile ./inventories/production/known_hosts
+  StrictHostKeyChecking yes

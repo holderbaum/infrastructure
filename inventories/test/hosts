@@ -1,0 +1,2 @@
+[test]
+turing.example.org ansible_ssh_pipelining=true
