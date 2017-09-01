@@ -2,9 +2,15 @@
 
 set -eu
 
+export TERRAFORM_VERSION
+export TERRAFORM_CHECKSUM
+
 export TF_VAR_do_token
 export TERRAFORM
 export TERRAFORM_STATE
+
+TERRAFORM_VERSION='0.10.2'
+TERRAFORM_CHECKSUM='6c1b5ce1a78bc7bb895055052d9074e519f51293770871acfe2dbd289e2f2aaa'
 
 TF_VAR_do_token="${DIGITAL_OCEAN_API_TOKEN}"
 TERRAFORM="$(pwd)/tmp/terraform"
@@ -13,9 +19,10 @@ TERRAFORM_STATE="$(pwd)/tmp/terraform.tfstate"
 function ensure_terraform {
   if [ ! -f "$TERRAFORM" ]; then
   mkdir -p tmp
-  curl -Lo tmp/tf.zip https://releases.hashicorp.com/terraform/0.10.2/terraform_0.10.2_linux_amd64.zip
+  curl -Lo tmp/tf.zip "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
     (
       cd tmp
+      echo "$TERRAFORM_CHECKSUM  tf.zip" |sha256sum -c
       unzip tf.zip
       rm tf.zip
     )
