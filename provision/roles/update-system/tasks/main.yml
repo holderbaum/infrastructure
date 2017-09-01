@@ -14,7 +14,7 @@
 - name: Server is about to reboot
   pause:
     prompt: 'Please confirm pending reboot! Press return to continue. Press Ctrl+c and then "a" to abort'
-  when: reboot_required.stat.exists == true
+  when: reboot_required.stat.exists == true and env == 'production'
 
 - name: Reboot the server
   shell: sleep 2 && /sbin/shutdown -r now

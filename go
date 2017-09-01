@@ -103,7 +103,7 @@ function task_test {
 
   ansible-playbook \
     --inventory-file=./inventories/test/ \
-    --extra-vars="ansible_ssh_common_args='-F ./tmp/ssh-config'" \
+    --extra-vars="env=test ansible_ssh_common_args='-F ./tmp/ssh-config'" \
     provision/site.yml
 
   bundle exec rspec --format documentation
@@ -114,7 +114,7 @@ function task_deploy {
 
   ansible-playbook \
     --inventory-file=./inventories/production/ \
-    --extra-vars="ansible_ssh_common_args='-F ./inventories/production/ssh-config'" \
+    --extra-vars="env=production ansible_ssh_common_args='-F ./inventories/production/ssh-config'" \
     --vault-password-file ./inventories/production/get-vault-pass.sh \
     provision/site.yml
 }
