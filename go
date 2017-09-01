@@ -44,7 +44,9 @@ function task_prepare_ci {
   sudo apt-get install -y software-properties-common
   sudo apt-add-repository -y ppa:ansible/ansible
   sudo apt-get update -y
-  sudo apt-get install -y ansible
+  sudo apt-get install -y \
+    ansible \
+    autossh
 }
 
 function setup_test_machine {
@@ -69,7 +71,21 @@ function setup_test_machine {
     echo "  IdentityFile ./tmp/test_rsa_id"
     echo "  UserKnownHostsFile /dev/null"
     echo "  StrictHostKeyChecking no"
+    echo "  ConnectTimeout 20"
   } >tmp/ssh-config
+
+  set +e
+  # Verify connection
+  local attempts=0
+  while ! ssh -F ./tmp/ssh-config turing.example.org uptime; do
+    (( attempts++ ))
+    if [ $attempts -eq 10 ]; then
+      echo 'Could not connect to test machine'
+      exit 1
+    fi
+    sleep 1
+  done
+  set -e
 }
 
 function task_lint {
@@ -77,6 +93,8 @@ function task_lint {
   bundle exec rubocop -f emacs
   bundle exec travis lint -x
 }
+
+
 
 function task_test {
   task_lint
