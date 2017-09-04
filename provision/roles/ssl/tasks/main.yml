@@ -1,7 +1,10 @@
 ---
 - set_fact:
     ssl:
-      certificates_dir: /etc/certificates
+      certificates_dir: "{{ data_dir }}/certificates"
+      config_dir: "{{ data_dir }}/letsencrypt/etc"
+      work_dir: "{{ data_dir }}/letsencrypt/lib"
+      log_dir: "{{ data_dir }}/letsencrypt/log"
 
 - apt_repository:
     repo: ppa:certbot/certbot
@@ -20,7 +23,7 @@
 - user:
     name: certbot
     group: certbot
-    home: /var/lib/letsencrypt
+    home: "{{ data_dir }}/letsencrypt"
     shell: /usr/bin/nologin
 
 - name: Allow certbot to access acme webroot
@@ -43,10 +46,10 @@
     mode: "u=rwx,g=rx,o-rwx"
   with_items:
     - "{{ ssl.certificates_dir }}"
-    - /etc/letsencrypt
-    - /etc/letsencrypt/live
-    - /var/lib/letsencrypt
-    - /var/log/letsencrypt
+    - "{{ ssl.config_dir }}"
+    - "{{ ssl.config_dir }}/live"
+    - "{{ ssl.work_dir }}"
+    - "{{ ssl.log_dir }}"
 
 - name: Create folders for certificates
   file:
@@ -57,8 +60,15 @@
     mode: "u=rwx,g=rx,o-rwx"
   with_items: "{{ domains }}"
 
+# TODO: Add cronjob
+- name: Add certificate management script
+  template:
+    src: templates/obtain-or-renew-certificate.sh.j2
+    dest: /usr/local/bin/obtain-or-renew-certificate.sh
+    mode: "u=rx,g=rx,o=rx"
+
 - name: Generate certificates
-  script: "scripts/obtain-or-renew-certificate.sh {{ acme.webroot }} {{ ssl.certificates_dir }} {{ owner.cert_mail }} {{ item }} {{ env }}"
+  shell: "/usr/local/bin/obtain-or-renew-certificate.sh '{{ item }}' '{{ env }}'"
   args:
     creates: "{{ ssl.certificates_dir }}/{{ item }}/privkey.pem"
   become: yes

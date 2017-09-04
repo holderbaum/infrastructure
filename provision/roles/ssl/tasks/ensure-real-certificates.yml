@@ -1,8 +1,0 @@
----
-- name: Generate certificates
-  script: "scripts/obtain-or-renew-certificate.sh {{ acme.webroot }} {{ ssl.certificates_dir }} {{ owner.cert_mail }} {{ item }}"
-  args:
-    creates: "{{ ssl.certificates_dir }}/{{ item }}/privkey.pem"
-  become: yes
-  become_user: certbot
-  with_items: "{{ domains }}"

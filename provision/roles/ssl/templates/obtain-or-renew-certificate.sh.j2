@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -eu
+
+## Replacements from ansible
+mail="{{ owner.cert_mail }}"
+webroot="{{ acme.webroot }}"
+config_dir="{{ ssl.config_dir }}"
+work_dir="{{ ssl.work_dir }}"
+log_dir="{{ ssl.log_dir }}"
+target_dir="{{ ssl.certificates_dir }}"
+##
+
+## Args
+domain=$1
+env=${2:-production}
+##
+
+## Computed configuration
+certbot_path="${config_dir}/live/${domain}"
+##
+
+if [ "$env" = "production" ]; then
+certbot \
+  certonly \
+  --test-cert \
+  -n \
+  --agree-tos \
+  --webroot \
+  --webroot-path "$webroot" \
+  --config-dir "$config_dir" \
+  --work-dir "$work_dir" \
+  --logs-dir "$log_dir" \
+  --domain "$domain" \
+  -m "$mail"
+else
+  mkdir -p "${certbot_path}"
+  openssl req -x509 -newkey rsa:2048 \
+    -keyout "${certbot_path}/privkey.pem" \
+    -out "${certbot_path}/fullchain.pem" \
+    -nodes \
+    -days 365 \
+    -subj "/C=DE/L=Test/OU=Test/CN=${domain}"
+fi
+
+
+cp -Lr \
+  "$certbot_path" \
+  "$target_dir"
+
+cat "$target_dir/$domain/privkey.pem" "$target_dir/$domain/fullchain.pem" >"$target_dir/$domain/cert.pem"

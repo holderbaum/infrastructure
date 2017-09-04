@@ -1,4 +1,7 @@
 ---
+- set_fact:
+    data_dir: /data
+
 - name: "create data dir"
   file:
     dest: "{{ data_dir }}"
