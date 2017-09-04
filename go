@@ -2,12 +2,18 @@
 
 set -eu
 
+export DOCTL_VERSION
+export DOCTL_CHECKSUM
+
 export TERRAFORM_VERSION
 export TERRAFORM_CHECKSUM
 
 export TF_VAR_do_token
 export TERRAFORM
 export TERRAFORM_STATE
+
+DOCTL_VERSION="1.6.1"
+DOCTL_CHECKSUM="5b06cfecc2fa6c921f73188e3fd04ca12fd5472f648d9e670764f2b3d598a175"
 
 TERRAFORM_VERSION='0.10.2'
 TERRAFORM_CHECKSUM='6c1b5ce1a78bc7bb895055052d9074e519f51293770871acfe2dbd289e2f2aaa'
@@ -54,6 +60,23 @@ function task_prepare_ci {
   sudo apt-get install -y \
     ansible \
     autossh
+}
+
+function task_purge_do {
+  if [ ! -f "./tmp/doctl" ]; then
+    mkdir -p tmp
+    curl -Lo tmp/doctl.tgz "https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}/doctl-${DOCTL_VERSION}-linux-amd64.tar.gz"
+    (
+      cd tmp
+      echo "$DOCTL_CHECKSUM  doctl.tgz" |sha256sum -c
+      tar xf doctl.tgz
+      rm doctl.tgz
+    )
+  fi
+
+  for droplet in $(./tmp/doctl -t "$DIGITAL_OCEAN_API_TOKEN" compute droplet list --format ID,Name |grep turing |cut -d' ' -f1); do
+    ./tmp/doctl -t "$DIGITAL_OCEAN_API_TOKEN" compute droplet delete -f "$droplet"
+  done
 }
 
 function setup_test_machine {
@@ -143,6 +166,7 @@ task="${1:-}"
 shift || true
 case "$task" in
   prepare-ci) task_prepare_ci ;;
+  purge-do) task_purge_do ;;
   lint) task_lint ;;
   deploy) task_deploy "$@" ;;
   test) task_test "$@" ;;
