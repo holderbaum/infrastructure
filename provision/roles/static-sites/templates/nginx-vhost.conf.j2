@@ -1,10 +1,10 @@
 server {
   listen  443 ssl;
   server_name  {{ site.domain }};
-  root  /var/www/deploy-blog/www;
+  root {{ static_sites_config.www_home }}/{{ site.name }}/www;
 
-  ssl_certificate  /etc/certificates/{{ site.domain }}/fullchain.pem;
-  ssl_certificate_key  /etc/certificates/{{ site.domain }}/privkey.pem;
+  ssl_certificate {{ ssl.certificates_dir }}/{{ site.domain }}/fullchain.pem;
+  ssl_certificate_key {{ ssl.certificates_dir }}/{{ site.domain }}/privkey.pem;
 
   location / {
     index  index.html index.htm;

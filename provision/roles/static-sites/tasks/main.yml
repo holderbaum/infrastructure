@@ -1,7 +1,11 @@
 ---
+- set_fact:
+    static_sites_config:
+      www_home: "{{ data_dir }}/static_sites"
+
 - name: Ensure static site base dir
   file:
-    path: "/var/www/"
+    path: "{{ static_sites_config.www_home }}"
     owner: "root"
     group: "root"
     state: directory

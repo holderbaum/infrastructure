@@ -8,7 +8,7 @@
   user:
     name: "deploy-{{ site.name }}"
     group: "deploy-{{ site.name }}"
-    home: "/var/www/deploy-{{ site.name }}"
+    home: "{{ static_sites_config.www_home }}/{{ site.name }}"
     shell: /bin/bash
     createhome: no
     password: "{{ lookup('password', '/dev/null length=64') | password_hash('sha512') }}"
@@ -27,8 +27,8 @@
     state: directory
     mode: "u=rwx,g=rx,o-rwx"
   with_items:
-    - "/var/www/deploy-{{ site.name }}"
-    - "/var/www/deploy-{{ site.name }}/www"
+    - "{{ static_sites_config.www_home }}/{{ site.name }}"
+    - "{{ static_sites_config.www_home }}/{{ site.name }}/www"
 
 - name: Allow access for the server owner
   authorized_key:
