@@ -23,7 +23,6 @@ certbot_path="${config_dir}/live/${domain}"
 if [ "$env" = "production" ]; then
 certbot \
   certonly \
-  --test-cert \
   -n \
   --agree-tos \
   --webroot \
