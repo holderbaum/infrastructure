@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'xmpp4r'
+require 'net/smtp'
 
 HAD_FAILURE = false
 
@@ -8,6 +9,7 @@ describe 'infrastructure' do
     setup_ssh_backend
     setup_fake_hosts [
       'xmpp.example.org',
+      'mail.example.org',
       'blog.example.org'
     ]
   end
@@ -138,6 +140,18 @@ describe 'infrastructure' do
       response = get_no_verify 'https://blog.example.org/'
       expect(response.status).to be(200)
       expect(response.body).to contain(content)
+    end
+  end
+
+  describe 'mail' do
+    it 'should accept mail' do
+      msg = "Subject: Hi There!\n\nThis works."
+      from = 'root@example.org'
+      to = 'root@example.org'
+      smtp = Net::SMTP.new 'mail.example.org', 25
+      smtp.start('mail.example.org') do
+        smtp.send_message(msg, from, to)
+      end
     end
   end
 end

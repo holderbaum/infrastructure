@@ -1,0 +1,49 @@
+---
+- set_fact:
+    mail:
+      domain: example.org
+      fqdn: mail.example.org
+
+- name: Set Postfix option hostname
+  debconf:
+    name: postfix
+    question: "postfix/mailname"
+    value: "{{ mail.fqdn }}"
+    vtype: "string"
+
+- name: Set Postfix option type as internet site
+  debconf:
+    name: postfix
+    question: "postfix/main_mailer_type"
+    value: "'Internet Site'"
+    vtype: "string"
+
+- name: Install Postfix
+  apt:
+    package: "{{ item }}"
+    state: installed
+    force: yes
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - postfix
+    - mailutils
+
+- name: Allow mail traffic
+  ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
+  with_items:
+    - { rule: 'allow', port: '25', proto: 'tcp' }
+
+- name: Configure main postfix
+  template:
+    src: templates/postfix-main.cf
+    dest: /etc/postfix/main.cf
+    mode: "u=r,g=r,o=r"
+  notify:
+    - restart postfix
+
+- name: Ensure running postfix
+  service:
+    name: postfix
+    state: started
+    enabled: yes
