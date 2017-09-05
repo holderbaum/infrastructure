@@ -15,6 +15,15 @@ vault:
     users:
       - name: testuser
         password: testpass
+    dh: |
+      -----BEGIN DH PARAMETERS-----
+      MIIBCAKCAQEAqPpLIH7S4hFO90v0itiig4+Zipd1PwH2afBbixxwNX0q2FU5EOxm
+      3np7yqfafNgL9HmM1ligw9moyGPqDpDLiOZVO25KSu0L9OuozPMu0yd3MpNexeLE
+      HXQlbYMFA+s1aMo/Ztmt9wKpV+qHjgEbdv5kBB9iRB8hbRn9jPdhoIpwlaNsvYKJ
+      yo0W+elRVT1NU0lVcjIZhRs5SF8/vdh3z4ZTEUYdfqXJMxD2I2XQlK56XCJ01dIx
+      wcNeZ2Huo0+PL4SIJZsnnUFM7fmqgvJZxu+hJJmmdUpgjsj3iC+H+GrU6X+11Ql3
+      XGKEQpeFZL5LkNlp2Wfdt0O9FsQGbQ4UWwIBAg==
+      -----END DH PARAMETERS-----
   static_sites:
     - name: test
       domain: test.example.org

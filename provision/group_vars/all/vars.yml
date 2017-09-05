@@ -4,6 +4,7 @@ owner:
   pubkeys: "{{ vault.owner.pubkeys }}"
 domains: "{{ vault.domains }}"
 xmpp:
+  dh: "{{ vault.xmpp.dh }}"
   domain: "{{ vault.xmpp.domain }}"
   users: "{{ vault.xmpp.users }}"
 static_sites: "{{ vault.static_sites }}"

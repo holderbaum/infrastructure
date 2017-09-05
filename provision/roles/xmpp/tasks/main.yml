@@ -42,18 +42,13 @@
     dest: '{{ ejabberd_pathes.deb_file }}'
     checksum: '{{ ejabberd.checksum }}'
 
-- name: Generate DH params
-  command: "openssl dhparam -out {{ ejabberd_pathes.dhparam_file }} 2048"
-  args:
-    creates: '{{ ejabberd_pathes.dhparam_file }}'
-
-- name: Fix DH params ownership
-  file:
-    path: '{{ ejabberd_pathes.dhparam_file }}'
+- name: Ensure DH params
+  copy:
+    content: "{{ xmpp.dh }}"
+    dest: '{{ ejabberd_pathes.dhparam_file }}'
     owner: ejabberd
     group: ejabberd
     mode: "u=r,g=r,o-rwx"
-    state: file
 
 - name: Install ejabberd
   apt:
