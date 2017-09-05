@@ -124,8 +124,14 @@
     - '5222'
     - '5269'
 
+- name: Add register XMPP user scripts
+  template:
+    src: templates/register-xmpp-user.sh.j2
+    dest: /usr/local/bin/register-xmpp-user.sh
+    mode: "u=rx,g=rx,o=rx"
+
 - name: Register XMPP users
-  script: 'scripts/register-user.sh "{{ item.name }}" "{{ xmpp.domain }}" "{{ item.password }}"'
+  shell: "/usr/local/bin/register-xmpp-user.sh '{{ item.name }}' '{{ item.password }}'"
   become: yes
   become_user: ejabberd
   with_items: '{{ xmpp.users }}'
