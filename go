@@ -146,8 +146,8 @@ function task_deploy {
 
   ansible-playbook \
     --inventory-file=./inventories/production/ \
-    --extra-vars="env=production ansible_ssh_common_args='-F ./inventories/production/ssh-config'" \
-    --vault-password-file ./inventories/production/get-vault-pass.sh \
+    --extra-vars="env=production ansible_ssh_common_args='-F ./deploy/ssh-config'" \
+    --vault-password-file ./deploy/get-vault-pass.sh \
     provision/site.yml
 }
 
