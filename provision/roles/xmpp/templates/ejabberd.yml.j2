@@ -191,7 +191,8 @@ modules:
   mod_vcard:
     search: false
   mod_version: {}
-  mod_stream_mgmt: {}
+  mod_stream_mgmt:
+    resend_on_timeout: if_offline
   ##   Non-SASL Authentication (XEP-0078) is now disabled by default
   ##   because it's obsoleted and is used mostly by abandoned
   ##   client software
