@@ -33,6 +33,18 @@
   ufw: rule={{ item.rule }} port={{ item.port }} proto={{ item.proto }}
   with_items:
     - { rule: 'allow', port: '25', proto: 'tcp' }
+    - { rule: 'allow', port: '2525', proto: 'tcp' }
+
+- name: Redirect from 2525 to 25 to circumvent firewalls
+  iptables:
+     table: nat
+     chain: PREROUTING
+     protocol: tcp
+     match: tcp
+     destination_port: 2525
+     jump: REDIRECT
+     to_ports: 25
+     comment: Redirect mail traffic from 2525 to 25
 
 - name: Configure main postfix
   template:

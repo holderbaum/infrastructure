@@ -148,7 +148,7 @@ describe 'infrastructure' do
       msg = "Subject: Hi There!\n\nThis works."
       from = 'root@example.org'
       to = 'root@example.org'
-      smtp = Net::SMTP.new 'mail.example.org', 25
+      smtp = Net::SMTP.new 'mail.example.org', 2525
       smtp.start('mail.example.org') do
         smtp.send_message(msg, from, to)
       end
