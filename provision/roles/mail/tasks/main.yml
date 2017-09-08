@@ -2,21 +2,58 @@
 - set_fact:
     mail:
       domain: example.org
-      fqdn: mail.example.org
+      hostname: mail.example.org
+      uid: 2222
+      gid: 2222
+      user: vmail
+      group: vmail
+      maildir: "{{ data_dir }}/mail/vmail"
+      domains:
+        - example.org
+        - foo.com
+        - bar.com
 
-- name: Set Postfix option hostname
-  debconf:
-    name: postfix
-    question: "postfix/mailname"
-    value: "{{ mail.fqdn }}"
-    vtype: "string"
+# - name: Set Postfix option hostname
+#   debconf:
+#     name: postfix
+#     question: "postfix/mailname"
+#     value: "{{ mail.fqdn }}"
+#     vtype: "string"
+# 
+# - name: Set Postfix option type as internet site
+#   debconf:
+#     name: postfix
+#     question: "postfix/main_mailer_type"
+#     value: "'Internet Site'"
+#     vtype: "string"
 
-- name: Set Postfix option type as internet site
-  debconf:
-    name: postfix
-    question: "postfix/main_mailer_type"
-    value: "'Internet Site'"
-    vtype: "string"
+- group:
+    name: "{{ mail.group }}"
+    gid: "{{ mail.gid }}"
+    state: present
+
+- user:
+    name: "{{ mail.user }}"
+    group: "{{ mail.group }}"
+    uid: "{{ mail.uid }}"
+    home: "{{ mail.maildir }}"
+    shell: /usr/bin/nologin
+    createhome: no
+
+- file:
+    path: "{{ mail.maildir }}"
+    owner: "{{ mail.user }}"
+    group: "{{ mail.group }}"
+    state: directory
+    mode: "u=rwx,g=rx,o-rwx"
+
+- file:
+    path: "{{ mail.maildir }}/{{ item }}"
+    owner: "{{ mail.user }}"
+    group: "{{ mail.group }}"
+    state: directory
+    mode: "u=rwx,g=rx,o-rwx"
+  with_items: "{{ mail.domains }}"
 
 - name: Install Postfix
   apt:
@@ -50,6 +87,14 @@
   template:
     src: templates/postfix-main.cf
     dest: /etc/postfix/main.cf
+    mode: "u=r,g=r,o=r"
+  notify:
+    - restart postfix
+
+- name: Configure virtual mailboxes
+  template:
+    src: templates/virtual_mailbox_maps
+    dest: /etc/postfix/virtual_mailbox_maps
     mode: "u=r,g=r,o=r"
   notify:
     - restart postfix

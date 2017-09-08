@@ -146,8 +146,8 @@ describe 'infrastructure' do
   describe 'mail' do
     it 'should accept mail' do
       msg = "Subject: Hi There!\n\nThis works."
-      from = 'root@example.org'
-      to = 'root@example.org'
+      from = 'root@example.com'
+      to = 'jakob@example.org'
       smtp = Net::SMTP.new 'mail.example.org', 2525
       smtp.start('mail.example.org') do
         smtp.send_message(msg, from, to)
