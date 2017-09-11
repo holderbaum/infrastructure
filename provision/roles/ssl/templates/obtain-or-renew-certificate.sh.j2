@@ -49,3 +49,5 @@ cp -Lr \
   "$target_dir"
 
 cat "$target_dir/$domain/privkey.pem" "$target_dir/$domain/fullchain.pem" >"$target_dir/$domain/cert.pem"
+
+chmod 440 "$target_dir/$domain/"*
