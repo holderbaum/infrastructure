@@ -4,6 +4,8 @@
     upgrade: dist
     update_cache: yes
     cache_valid_time: 3600
+  async: 540
+  poll: 10
 
 - name: Check if a reboot is required
   register: reboot_required
