@@ -60,7 +60,6 @@
     mode: "u=rwx,g=rx,o-rwx"
   with_items: "{{ domains }}"
 
-# TODO: Add cronjob
 - name: Add certificate management script
   template:
     src: templates/obtain-or-renew-certificate.sh.j2
@@ -73,4 +72,25 @@
     creates: "{{ ssl.certificates_dir }}/{{ item }}/privkey.pem"
   become: yes
   become_user: certbot
+  with_items: "{{ domains }}"
+
+- name: Remove obsolete certbot cronjob
+  file:
+    path: /etc/cron.d/certbot
+    state: absent
+
+- name: Register cronjobs for certificate renewal
+  cron:
+    special_time: weekly
+    user: certbot
+    name: "Renew {{ item }}"
+    cron_file: "certbot_renew_{{ item | regex_replace('\\.', '_') }}"
+    job: "perl -e 'sleep int(rand(3600))' && /usr/local/bin/obtain-or-renew-certificate.sh '{{ item }}' '{{ env }}'"
+  with_items: "{{ domains }}"
+
+- name: Ensure cronjob mails
+  cronvar:
+    name: MAILTO
+    value: "{{ owner.cron_mail }}"
+    cron_file: "certbot_renew_{{ item | regex_replace('\\.', '_') }}"
   with_items: "{{ domains }}"

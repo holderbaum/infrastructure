@@ -1,6 +1,7 @@
 owner:
   name: Jakob Holderbaum
   cert_mail: "{{ vault.owner.cert_mail }}"
+  cron_mail: "{{ vault.owner.cron_mail }}"
   pubkeys: "{{ vault.owner.pubkeys }}"
 domains: "{{ vault.domains }}"
 xmpp:

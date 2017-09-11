@@ -87,6 +87,23 @@ describe 'infrastructure' do
     end
   end
 
+  describe 'ssl' do
+    describe file('/data/certificates/test.example.org/privkey.pem') do
+      it { should be_file }
+    end
+
+    describe file('/etc/cron.d/certbot_renew_test_example_org') do
+      its(:content) { should contain('MAILTO=user-cron@example.org') }
+      its(:content) do
+        expected_job = ['@weekly',
+                        'certbot',
+                        '/usr/local/bin/obtain-or-renew-certificate.sh',
+                        "'test.example.org'"].join ' '
+        should contain(expected_job)
+      end
+    end
+  end
+
   describe 'www' do
     it 'should be reachable' do
       wait_for { port 80 }.to be_listening.with 'tcp'
