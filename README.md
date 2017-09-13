@@ -4,6 +4,12 @@
 
 This repository contains the code to setup and test my personal server infrastructure.
 
+## TODO
+
+* Automatic Updates
+* Automatic Backups
+* IMAP/POP3 mail setup
+
 ## Testing
 
 To test, simply call:
