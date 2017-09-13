@@ -15,4 +15,4 @@
     - ssl
     - static-sites
     - xmpp
-    - mail
+    - { role: mail, when: env == 'test' }
