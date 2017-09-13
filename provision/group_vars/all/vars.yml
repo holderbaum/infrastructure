@@ -4,6 +4,7 @@ owner:
   cron_mail: "{{ vault.owner.cron_mail }}"
   pubkeys: "{{ vault.owner.pubkeys }}"
 domains: "{{ vault.domains }}"
+sharing_accounts: "{{ vault.sharing_accounts }}"
 xmpp:
   dh: "{{ vault.xmpp.dh }}"
   domain: "{{ vault.xmpp.domain }}"

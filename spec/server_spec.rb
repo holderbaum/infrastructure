@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'English'
 require 'xmpp4r'
 require 'net/smtp'
 
@@ -34,6 +35,27 @@ describe 'infrastructure' do
 
   describe service('ufw') do
     it { should be_running }
+  end
+
+  describe 'sharing' do
+    it 'should allow ssh access' do
+      ssh_cmd = ['ssh',
+                 '-F tmp/ssh-config',
+                 '-i ./spec/assets/id_rsa',
+                 'sharing-images@turing.example.org'].join ' '
+      `#{ssh_cmd} exit 2>/dev/null`
+
+      expect($CHILD_STATUS).to eq(0)
+    end
+
+    describe file('/data/sharing/images') do
+      it { should be_directory }
+      it { should be_mode 750 }
+    end
+
+    describe command('unison -version') do
+      its(:stdout) { should match(/2.48.4/) }
+    end
   end
 
   describe 'xmpp' do

@@ -1,0 +1,38 @@
+---
+- set_fact:
+    unison:
+      version: "2.48.4"
+      checksum: "sha256:048ceec64b6dc2b2e7d262ffcd928b1e2c0e1b31cab18f98e593e42d466923e9"
+
+- set_fact:
+    sharing_pathes:
+      unison_tar_file: "{{ data_dir }}/sharing/unison-{{ unison.version }}.tar"
+      home: "{{ data_dir }}/sharing"
+
+- file:
+    path: "{{ sharing_pathes.home }}"
+    state: directory
+    mode: "u=rwx,g=rx,o=rx"
+
+- name: Create sharing account
+  include: create-sharing-account.yml account={{outer_item}}
+  with_items: "{{ sharing_accounts }}"
+  loop_control:
+    loop_var: outer_item
+
+- name: Download unison
+  get_url:
+    url: 'http://www.urs-mueller.ch/de/computer/download/unison-{{ unison.version }}-linux-x86_64-text-static.tar.gz'
+    dest: '{{ sharing_pathes.unison_tar_file }}'
+    checksum: '{{ unison.checksum }}'
+
+- unarchive:
+    src: '{{ sharing_pathes.unison_tar_file }}'
+    remote_src: yes
+    dest: /usr/local/bin/
+    creates: "/usr/local/bin/unison-{{ unison.version }}-linux-x86_64-text-static"
+
+- file:
+    src: "/usr/local/bin/unison-{{ unison.version }}-linux-x86_64-text-static"
+    dest: /usr/local/bin/unison
+    state: link

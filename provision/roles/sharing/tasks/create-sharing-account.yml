@@ -1,0 +1,19 @@
+---
+- user:
+    name: "sharing-{{ account.name }}"
+    home: "{{ sharing_pathes.home }}/{{ account.name }}"
+    shell: /bin/bash
+  with_items: "{{ sharing_accounts }}"
+
+- file:
+    path: "{{ sharing_pathes.home }}/{{ account.name }}"
+    state: directory
+    mode: "u=rwx,g=rx,o-rwx"
+  with_items: "{{ sharing_accounts }}"
+
+- authorized_key:
+    user: "sharing-{{ account.name }}"
+    state: present
+    key: '{{ item }}'
+  with_items: "{{ account.pubkeys }}"
+
