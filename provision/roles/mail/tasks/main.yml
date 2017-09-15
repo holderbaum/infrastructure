@@ -12,20 +12,9 @@
         - example.org
         - foo.com
         - bar.com
-
-# - name: Set Postfix option hostname
-#   debconf:
-#     name: postfix
-#     question: "postfix/mailname"
-#     value: "{{ mail.fqdn }}"
-#     vtype: "string"
-# 
-# - name: Set Postfix option type as internet site
-#   debconf:
-#     name: postfix
-#     question: "postfix/main_mailer_type"
-#     value: "'Internet Site'"
-#     vtype: "string"
+      mailboxes:
+        - domain: example.org
+          account: jakob
 
 - group:
     name: "{{ mail.group }}"

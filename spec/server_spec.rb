@@ -206,5 +206,9 @@ describe 'infrastructure' do
         smtp.send_message(msg, from, to)
       end
     end
+
+    describe file('/data/mail/vmail/example.org/jakob/new') do
+      it { should be_directory }
+    end
   end
 end

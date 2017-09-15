@@ -1,1 +1,3 @@
-jakob@example.org   example.org/jakob
+{% for mailbox in mail.mailboxes %}
+{{ mailbox.account }}@{{ mailbox.domain }}   {{ mailbox.domain }}/{{ mailbox.account }}/
+{% endfor %}
