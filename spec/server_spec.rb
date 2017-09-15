@@ -33,6 +33,19 @@ describe 'infrastructure' do
     end
   end
 
+  describe 'automatic updates' do
+    describe package('unattended-upgrades') do
+      it { should be_installed }
+    end
+
+    describe file('/etc/apt/apt.conf.d/50unattended-upgrades') do
+      it { should be_file }
+      its(:content) do
+        should match(/^        "\${distro_id}:\${distro_codename}-security";$/)
+      end
+    end
+  end
+
   describe service('ufw') do
     it { should be_running }
   end

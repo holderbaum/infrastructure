@@ -6,7 +6,6 @@ This repository contains the code to setup and test my personal server infrastru
 
 ## TODO
 
-* Automatic Updates
 * Automatic Backups
 * IMAP/POP3 mail setup
 

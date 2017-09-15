@@ -33,3 +33,16 @@
 - name: Check for correctly started server
   shell: uptime
   when: reboot_required.stat.exists == true
+
+- name: Enable automatic updates
+  apt:
+    package: unattended-upgrades
+    state: installed
+    force: yes
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Configure automatic updates
+  copy:
+    src: files/50unattended-upgrades
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
