@@ -2,6 +2,7 @@ require 'spec_helper'
 require 'English'
 require 'xmpp4r'
 require 'net/smtp'
+require 'net/imap'
 
 HAD_FAILURE = false
 
@@ -197,10 +198,15 @@ describe 'infrastructure' do
   end
 
   describe 'mail' do
+    let(:user) { 'jakob@example.org' }
+    let(:pass) { 'test' }
+    let(:subject_text) { 'Hi There!' }
+    let(:body_text) { 'This is great' }
+
     it 'should accept mail' do
-      msg = "Subject: Hi There!\n\nThis works."
+      msg = "Subject: #{subject_text}\n\n#{body_text}"
       from = 'root@example.com'
-      to = 'jakob@example.org'
+      to = user
       smtp = Net::SMTP.new 'mail.example.org', 2525
       smtp.start('mail.example.org') do
         smtp.send_message(msg, from, to)
@@ -209,6 +215,45 @@ describe 'infrastructure' do
 
     describe file('/data/mail/vmail/example.org/jakob/new') do
       it { should be_directory }
+    end
+
+    it 'should deny login over plain imap' do
+      imap = Net::IMAP.new('mail.example.org')
+
+      expected_error = Net::IMAP::NoResponseError
+      expected_message = /Plaintext authentication disallowed/
+
+      expect do
+        imap.login user, pass
+      end.to raise_error expected_error, expected_message
+    end
+
+    it 'should allow login over imap via starttls' do
+      imap = Net::IMAP.new 'mail.example.org'
+      imap.starttls '', false
+      imap.login user, pass
+    end
+
+    it 'should allow login over imap via SSL' do
+      imap = Net::IMAP.new('mail.example.org',
+                           ssl: {
+                             verify_mode: OpenSSL::SSL::VERIFY_NONE
+                           })
+      imap.login user, pass
+    end
+
+    it 'should provide emails over imap' do
+      imap = Net::IMAP.new 'mail.example.org'
+      imap.starttls '', false
+      imap.login user, pass
+
+      imap.examine 'INBOX'
+      bodies = imap.search(['RECENT']).map do |message_id|
+        imap.fetch(message_id, 'BODY[TEXT]')[0].attr['BODY[TEXT]']
+      end
+
+      expect(bodies).to_not be_empty
+      expect(bodies.last).to eq body_text + "\r\n"
     end
   end
 end

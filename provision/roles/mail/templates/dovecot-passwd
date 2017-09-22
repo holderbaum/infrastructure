@@ -1,0 +1,3 @@
+{% for mailbox in mail.mailboxes %}
+{{ mailbox.account }}@{{ mailbox.domain }}:{{ mailbox.password | password_hash('sha512', mailbox.salt) }}:{{ mail.uid }}:{{ mail.gid }}::{{ mail.maildir }}/{{ mailbox.domain }}/{{ mailbox.account }}/:/bin/false::
+{% endfor %}
