@@ -1,0 +1,4 @@
+---
+- name: Add additional IP addresses
+  shell: "ip addr |grep {{ item }} &>/dev/null || ip addr add {{ item }}/32 dev eth0"
+  with_items: "{{ ips }}"

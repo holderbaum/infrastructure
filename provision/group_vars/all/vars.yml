@@ -3,6 +3,7 @@ owner:
   cert_mail: "{{ vault.owner.cert_mail }}"
   cron_mail: "{{ vault.owner.cron_mail }}"
   pubkeys: "{{ vault.owner.pubkeys }}"
+ips: "{{ vault.ips }}"
 domains: "{{ vault.domains }}"
 sharing_accounts: "{{ vault.sharing_accounts }}"
 xmpp:
