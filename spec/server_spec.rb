@@ -3,6 +3,7 @@ require 'English'
 require 'xmpp4r'
 require 'net/smtp'
 require 'net/imap'
+require 'net/pop'
 
 HAD_FAILURE = false
 
@@ -228,13 +229,13 @@ describe 'infrastructure' do
       end.to raise_error expected_error, expected_message
     end
 
-    it 'should allow login over imap via starttls' do
+    it 'should allow login over plain imap via starttls' do
       imap = Net::IMAP.new 'mail.example.org'
       imap.starttls '', false
       imap.login user, pass
     end
 
-    it 'should allow login over imap via SSL' do
+    it 'should allow login over TLS imap' do
       imap = Net::IMAP.new('mail.example.org',
                            ssl: {
                              verify_mode: OpenSSL::SSL::VERIFY_NONE
@@ -254,6 +255,39 @@ describe 'infrastructure' do
 
       expect(bodies).to_not be_empty
       expect(bodies.last).to eq body_text + "\r\n"
+    end
+
+    it 'should deny login over plain pop3' do
+      pop = Net::POP3.new 'mail.example.org'
+
+      expected_error = Net::POPAuthenticationError
+      expected_message = /Plaintext authentication disallowed/
+
+      expect do
+        pop.start user, pass
+      end.to raise_error expected_error, expected_message
+    end
+
+    it 'should be able to do starttls over plain pop3' do
+      cmd = ['echo DONE |',
+             'openssl s_client',
+             '-starttls pop3',
+             "-connect #{external_ip}:110",
+             '-servername mail.example.org',
+             '-verify_return_error',
+             '2>&1']
+
+      output = `#{cmd.join(' ')}`
+
+      expect($CHILD_STATUS).to be_success
+      expect(output).to match(/^\+OK Dovecot ready\.\r\n/)
+    end
+
+    it 'should allow login over TLS pop3' do
+      pop = Net::POP3.new 'mail.example.org'
+      pop.enable_ssl verify_mode: OpenSSL::SSL::VERIFY_NONE
+      pop.start user, pass
+      pop.finish
     end
   end
 end

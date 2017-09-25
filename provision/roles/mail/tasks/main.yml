@@ -68,6 +68,7 @@
     - { rule: 'allow', port: '2525', proto: 'tcp' }
     # POP3
     - { rule: 'allow', port: '110', proto: 'tcp' }
+    - { rule: 'allow', port: '995', proto: 'tcp' }
     # IMAP
     - { rule: 'allow', port: '143', proto: 'tcp' }
     - { rule: 'allow', port: '993', proto: 'tcp' }
