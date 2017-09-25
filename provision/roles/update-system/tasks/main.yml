@@ -27,7 +27,7 @@
 
 - name: Wait for server to start again
   pause:
-    seconds: 20
+    seconds: 60
   when: reboot_required.stat.exists == true
 
 - name: Check for correctly started server
