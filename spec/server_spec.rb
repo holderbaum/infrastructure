@@ -204,13 +204,28 @@ describe 'infrastructure' do
     let(:subject_text) { 'Hi There!' }
     let(:body_text) { 'This is great' }
 
-    it 'should accept mail' do
+    it 'should accept mail to known mailbox' do
       msg = "Subject: #{subject_text}\n\n#{body_text}"
       from = 'root@example.com'
       to = user
       smtp = Net::SMTP.new 'mail.example.org', 2525
       smtp.start('mail.example.org') do
         smtp.send_message(msg, from, to)
+      end
+    end
+
+    it 'should not accept mail to unknown mailbox' do
+      msg = "Subject: #{subject_text}\n\n#{body_text}"
+      from = 'root@example.com'
+      to = 'peter@example.org'
+      smtp = Net::SMTP.new 'mail.example.org', 2525
+      smtp.start('mail.example.org') do
+        expected_error = Net::SMTPFatalError
+        expected_message = /User unknown in virtual mailbox table/
+
+        expect do
+          smtp.send_message(msg, from, to)
+        end.to raise_error expected_error, expected_message
       end
     end
 
