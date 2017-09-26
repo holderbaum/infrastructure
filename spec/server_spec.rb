@@ -204,29 +204,47 @@ describe 'infrastructure' do
     let(:subject_text) { 'Hi There!' }
     let(:body_text) { 'This is great' }
 
-    it 'should accept mail to known mailbox' do
-      msg = "Subject: #{subject_text}\n\n#{body_text}"
+    def send_mail(to, body)
       from = 'root@example.com'
-      to = user
+      msg = "Subject: #{subject_text}\n\n#{body}"
       smtp = Net::SMTP.new 'mail.example.org', 2525
       smtp.start('mail.example.org') do
         smtp.send_message(msg, from, to)
       end
     end
 
-    it 'should not accept mail to unknown mailbox' do
-      msg = "Subject: #{subject_text}\n\n#{body_text}"
-      from = 'root@example.com'
-      to = 'peter@example.org'
-      smtp = Net::SMTP.new 'mail.example.org', 2525
-      smtp.start('mail.example.org') do
-        expected_error = Net::SMTPFatalError
-        expected_message = /User unknown in virtual mailbox table/
+    it 'should accept mail to known mailbox' do
+      send_mail user, 'a test mail'
+    end
 
-        expect do
-          smtp.send_message(msg, from, to)
-        end.to raise_error expected_error, expected_message
-      end
+    it 'should accept mail to known mailbox with suffix' do
+      send_mail 'jakob+foo@example.org', 'a 2 test mail'
+    end
+
+    it 'should accept mail to alias at same domain' do
+      send_mail 'alias@example.org', 'alias mail tada'
+    end
+
+    it 'should accept mail to alias at different domain' do
+      send_mail 'test@foo.com', 'other domain alias'
+    end
+
+    it 'should not accept mail to unknown mailbox' do
+      expected_error = Net::SMTPFatalError
+      expected_message = /unknown/
+
+      expect do
+        send_mail 'unknown@example.org', 'unknown mailbox'
+      end.to raise_error expected_error, expected_message
+    end
+
+    it 'should not accept mail to unknown alias mailbox' do
+      expected_error = Net::SMTPFatalError
+      expected_message = /unknown/
+
+      expect do
+        send_mail 'unknown@foo.com', 'unknown mailbox'
+      end.to raise_error expected_error, expected_message
     end
 
     describe file('/data/mail/vmail/example.org/jakob/new') do
@@ -269,7 +287,6 @@ describe 'infrastructure' do
       end
 
       expect(bodies).to_not be_empty
-      expect(bodies.last).to eq body_text + "\r\n"
     end
 
     it 'should deny login over plain pop3' do

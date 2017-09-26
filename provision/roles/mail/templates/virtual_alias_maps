@@ -1,0 +1,7 @@
+{% for mailbox in mail.mailboxes %}
+# Aliases for {{ mailbox.account }}@{{ mailbox.domain }}
+{% for alias in mailbox.aliases %}
+{{ alias }}  {{ mailbox.account }}@{{ mailbox.domain }}
+{% endfor %}
+
+{% endfor %}

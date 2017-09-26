@@ -28,10 +28,9 @@ relayhost =
 # Users
 ###############
 
-# virtual_alias_domains={% for domain in mail.domains %}{{domain}} {% endfor %}
-# virtual_alias_domains=example.org
-# virtual_alias_maps=texthash:/etc/postfix/vmail_aliases
-virtual_mailbox_domains=example.org
+virtual_mailbox_domains={{ mail_computed.mailbox_domains | union(mail_computed.alias_domains) | unique | join(' ') }}
+
+virtual_alias_maps=texthash:/etc/postfix/virtual_alias_maps
 virtual_mailbox_maps=texthash:/etc/postfix/virtual_mailbox_maps
 
 virtual_mailbox_base = {{ mail.maildir }}

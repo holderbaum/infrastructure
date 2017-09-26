@@ -8,15 +8,26 @@
       user: vmail
       group: vmail
       maildir: "{{ data_dir }}/mail/vmail"
-      domains:
-        - example.org
-        - foo.com
-        - bar.com
       mailboxes:
+        - domain: bar.com
+          account: jakob
+          password: test
+          salt: adfdsd
+          aliases:
+            - alias@foo.com
+            - test2@foo.com
         - domain: example.org
           account: jakob
           password: test
           salt: adfdsd
+          aliases:
+            - alias@example.org
+            - test@foo.com
+
+- set_fact:
+    mail_computed:
+      alias_domains: "{{ mail.mailboxes | sum(attribute='aliases', start=[]) | map('regex_replace', '.*@', '') | list | unique }}"
+      mailbox_domains: "{{ mail.mailboxes | map(attribute='domain') | list | unique }}"
 
 - group:
     name: "{{ mail.group }}"
@@ -44,7 +55,7 @@
     group: "{{ mail.group }}"
     state: directory
     mode: "u=rwx,g=rx,o-rwx"
-  with_items: "{{ mail.domains }}"
+  with_items: "{{ mail_computed.mailbox_domains | union(mail_computed.alias_domains) | unique | list }}"
 
 - name: Install Postfix
   apt:
@@ -91,6 +102,14 @@
     mode: "u=r,g=r,o=r"
   notify:
     - restart postfix
+
+- name: Configure virtual aliases
+  template:
+    src: templates/virtual_alias_maps
+    dest: /etc/postfix/virtual_alias_maps
+    mode: "u=r,g=r,o=r"
+  notify:
+    - restart dovecot
 
 - name: Configure virtual mailboxes
   template:
