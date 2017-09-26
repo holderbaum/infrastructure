@@ -24,7 +24,7 @@
     name: certbot
     group: certbot
     home: "{{ data_dir }}/letsencrypt"
-    shell: /usr/bin/nologin
+    shell: /bin/false
 
 - name: Allow certbot to access acme webroot
   user:

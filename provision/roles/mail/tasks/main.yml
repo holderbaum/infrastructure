@@ -28,7 +28,7 @@
     group: "{{ mail.group }}"
     uid: "{{ mail.uid }}"
     home: "{{ mail.maildir }}"
-    shell: /usr/bin/nologin
+    shell: /bin/false
     createhome: no
 
 - file:

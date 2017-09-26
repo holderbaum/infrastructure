@@ -13,7 +13,7 @@
     name: "{{ acme.user }}"
     group: "{{ acme.group }}"
     home: "{{ acme.webroot }}"
-    shell: /usr/bin/nologin
+    shell: /bin/false
     createhome: no
 
 - file:
