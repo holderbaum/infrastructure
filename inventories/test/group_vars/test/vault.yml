@@ -43,15 +43,13 @@ vault:
     mailboxes:
       - domain: bar.com
         account: jakob
-        password: test
-        salt: adfdsd
+        password: otherpw
         aliases:
           - alias@foo.com
           - test2@foo.com
       - domain: example.org
         account: jakob
         password: test
-        salt: adfdsd
         aliases:
           - alias@example.org
           - test@foo.com

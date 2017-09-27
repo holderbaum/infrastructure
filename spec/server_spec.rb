@@ -201,125 +201,142 @@ describe 'infrastructure' do
   describe 'mail' do
     let(:user) { 'jakob@example.org' }
     let(:pass) { 'test' }
-    let(:subject_text) { 'Hi There!' }
-    let(:body_text) { 'This is great' }
 
-    def send_mail(to, body)
-      from = 'root@example.com'
-      msg = "Subject: #{subject_text}\n\n#{body}"
-      smtp = Net::SMTP.new 'mail.example.org', 2525
-      smtp.start('mail.example.org') do
-        smtp.send_message(msg, from, to)
+    describe 'retrieving' do
+      it 'should deny login over plain imap' do
+        imap = Net::IMAP.new('mail.example.org')
+
+        expected_error = Net::IMAP::NoResponseError
+        expected_message = /Plaintext authentication disallowed/
+
+        expect do
+          imap.login user, pass
+        end.to raise_error expected_error, expected_message
       end
-    end
 
-    it 'should accept mail to known mailbox' do
-      send_mail user, 'a test mail'
-    end
-
-    it 'should accept mail to known mailbox with suffix' do
-      send_mail 'jakob+foo@example.org', 'a 2 test mail'
-    end
-
-    it 'should accept mail to alias at same domain' do
-      send_mail 'alias@example.org', 'alias mail tada'
-    end
-
-    it 'should accept mail to alias at different domain' do
-      send_mail 'test@foo.com', 'other domain alias'
-    end
-
-    it 'should not accept mail to unknown mailbox' do
-      expected_error = Net::SMTPFatalError
-      expected_message = /unknown/
-
-      expect do
-        send_mail 'unknown@example.org', 'unknown mailbox'
-      end.to raise_error expected_error, expected_message
-    end
-
-    it 'should not accept mail to unknown alias mailbox' do
-      expected_error = Net::SMTPFatalError
-      expected_message = /unknown/
-
-      expect do
-        send_mail 'unknown@foo.com', 'unknown mailbox'
-      end.to raise_error expected_error, expected_message
-    end
-
-    describe file('/data/mail/vmail/example.org/jakob/new') do
-      it { should be_directory }
-    end
-
-    it 'should deny login over plain imap' do
-      imap = Net::IMAP.new('mail.example.org')
-
-      expected_error = Net::IMAP::NoResponseError
-      expected_message = /Plaintext authentication disallowed/
-
-      expect do
+      it 'should allow login over plain imap via starttls' do
+        imap = Net::IMAP.new 'mail.example.org'
+        imap.starttls '', false
         imap.login user, pass
-      end.to raise_error expected_error, expected_message
-    end
-
-    it 'should allow login over plain imap via starttls' do
-      imap = Net::IMAP.new 'mail.example.org'
-      imap.starttls '', false
-      imap.login user, pass
-    end
-
-    it 'should allow login over TLS imap' do
-      imap = Net::IMAP.new('mail.example.org',
-                           ssl: {
-                             verify_mode: OpenSSL::SSL::VERIFY_NONE
-                           })
-      imap.login user, pass
-    end
-
-    it 'should provide emails over imap' do
-      imap = Net::IMAP.new 'mail.example.org'
-      imap.starttls '', false
-      imap.login user, pass
-
-      imap.examine 'INBOX'
-      bodies = imap.search(['RECENT']).map do |message_id|
-        imap.fetch(message_id, 'BODY[TEXT]')[0].attr['BODY[TEXT]']
       end
 
-      expect(bodies).to_not be_empty
-    end
+      it 'should allow login over TLS imap' do
+        imap = Net::IMAP.new('mail.example.org',
+                             ssl: {
+                               verify_mode: OpenSSL::SSL::VERIFY_NONE
+                             })
+        imap.login user, pass
+      end
 
-    it 'should deny login over plain pop3' do
-      pop = Net::POP3.new 'mail.example.org'
+      it 'should deny login over plain pop3' do
+        pop = Net::POP3.new 'mail.example.org'
 
-      expected_error = Net::POPAuthenticationError
-      expected_message = /Plaintext authentication disallowed/
+        expected_error = Net::POPAuthenticationError
+        expected_message = /Plaintext authentication disallowed/
 
-      expect do
+        expect do
+          pop.start user, pass
+        end.to raise_error expected_error, expected_message
+      end
+
+      it 'should be able to do starttls over plain pop3' do
+        cmd = ['echo DONE |',
+               'openssl s_client',
+               '-starttls pop3',
+               "-connect #{external_ip}:110",
+               '-servername mail.example.org',
+               '-verify_return_error',
+               '2>&1']
+
+        output = `#{cmd.join(' ')}`
+
+        expect($CHILD_STATUS).to be_success
+        expect(output).to match(/^\+OK Dovecot ready\.\r\n/)
+      end
+
+      it 'should allow login over TLS pop3' do
+        pop = Net::POP3.new 'mail.example.org'
+        pop.enable_ssl verify_mode: OpenSSL::SSL::VERIFY_NONE
         pop.start user, pass
-      end.to raise_error expected_error, expected_message
+        pop.finish
+      end
     end
 
-    it 'should be able to do starttls over plain pop3' do
-      cmd = ['echo DONE |',
-             'openssl s_client',
-             '-starttls pop3',
-             "-connect #{external_ip}:110",
-             '-servername mail.example.org',
-             '-verify_return_error',
-             '2>&1']
+    describe 'receiving' do
+      it 'should accept mail to known mailbox' do
+        body = 'a test mail ' + rand(1000).to_s
+        send_mail 'jakob@example.org', body
+        expected = fetch_newest_mail_body('jakob@example.org', 'test')
+        expect(expected).to contain(body)
 
-      output = `#{cmd.join(' ')}`
+        body = 'another test mail ' + rand(1000).to_s
+        send_mail 'jakob@bar.com', body
+        expected = fetch_newest_mail_body('jakob@bar.com', 'otherpw')
+        expect(expected).to contain(body)
+      end
 
-      expect($CHILD_STATUS).to be_success
-      expect(output).to match(/^\+OK Dovecot ready\.\r\n/)
-    end
+      it 'should accept mail to known mailbox with suffix' do
+        body = 'a test mail ' + rand(1000).to_s
+        send_mail 'jakob+foo@example.org', body
+        expected = fetch_newest_mail_body('jakob@example.org', 'test')
+        expect(expected).to contain(body)
+      end
 
-    it 'should allow login over TLS pop3' do
-      pop = Net::POP3.new 'mail.example.org'
-      pop.enable_ssl verify_mode: OpenSSL::SSL::VERIFY_NONE
-      pop.start user, pass
-      pop.finish
+      it 'should accept mail to alias at same domain' do
+        body = 'a test mail ' + rand(1000).to_s
+        send_mail 'alias@example.org', body
+        expected = fetch_newest_mail_body('jakob@example.org', 'test')
+        expect(expected).to contain(body)
+      end
+
+      it 'should accept mail to alias at different domain' do
+        body = 'a test mail ' + rand(1000).to_s
+        send_mail 'test@foo.com', body
+        expected = fetch_newest_mail_body('jakob@example.org', 'test')
+        expect(expected).to contain(body)
+      end
+
+      it 'should not accept mail to unknown mailbox' do
+        expected_error = Net::SMTPFatalError
+        expected_message = /unknown/
+
+        expect do
+          send_mail 'unknown@example.org', 'unknown mailbox'
+        end.to raise_error expected_error, expected_message
+      end
+
+      it 'should not accept mail to unknown alias mailbox' do
+        expected_error = Net::SMTPFatalError
+        expected_message = /unknown/
+
+        expect do
+          send_mail 'unknown@foo.com', 'unknown mailbox'
+        end.to raise_error expected_error, expected_message
+      end
+
+      describe file('/data/mail/vmail/example.org/jakob/new') do
+        it { should be_directory }
+      end
+
+      def send_mail(to, body)
+        from = 'root@example.com'
+        msg = "Subject: Hey!!\n\n#{body}"
+        smtp = Net::SMTP.new 'mail.example.org', 2525
+        smtp.start('mail.example.org') do
+          smtp.send_message(msg, from, to)
+        end
+      end
+
+      def fetch_newest_mail_body(username, password)
+        imap = Net::IMAP.new 'mail.example.org'
+        imap.starttls '', false
+        imap.login username, password
+
+        imap.examine 'INBOX'
+        last_message_id = imap.search(['RECENT']).last
+
+        imap.fetch(last_message_id, 'BODY[TEXT]')[0].attr['BODY[TEXT]']
+      end
     end
   end
 end
