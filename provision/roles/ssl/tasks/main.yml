@@ -51,6 +51,13 @@
     - "{{ ssl.work_dir }}"
     - "{{ ssl.log_dir }}"
 
+- name: Fix log permissions
+  file:
+    dest: "{{ ssl.log_dir }}"
+    owner: certbot
+    group: certbot
+    recurse: yes
+
 - name: Create folders for certificates
   file:
     path: "{{ ssl.certificates_dir }}/{{ item }}"

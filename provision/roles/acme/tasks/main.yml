@@ -17,11 +17,15 @@
     createhome: no
 
 - file:
-    path: "{{ acme.webroot }}"
+    path: "{{ item }}"
     owner: "{{ acme.user }}"
     group: "{{ acme.group }}"
     state: directory
     mode: "u=rwx,g=rwx,o-rwx"
+  with_items:
+    - "{{ acme.webroot }}"
+    - "{{ acme.webroot }}/.well-known"
+    - "{{ acme.webroot }}/.well-known/acme-challenge"
 
 - include: create-test-challenge.yml
   when: "'test' in group_names"
