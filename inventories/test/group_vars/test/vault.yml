@@ -38,4 +38,20 @@ vault:
       domain: test.example.org
     - name: blog
       domain: blog.example.org
-
+  mail:
+    mailserver: mail.example.org
+    mailboxes:
+      - domain: bar.com
+        account: jakob
+        password: test
+        salt: adfdsd
+        aliases:
+          - alias@foo.com
+          - test2@foo.com
+      - domain: example.org
+        account: jakob
+        password: test
+        salt: adfdsd
+        aliases:
+          - alias@example.org
+          - test@foo.com

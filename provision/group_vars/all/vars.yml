@@ -11,3 +11,4 @@ xmpp:
   domain: "{{ vault.xmpp.domain }}"
   users: "{{ vault.xmpp.users }}"
 static_sites: "{{ vault.static_sites }}"
+mail: "{{ vault.mail }}"

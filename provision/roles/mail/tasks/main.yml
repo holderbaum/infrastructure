@@ -1,58 +1,44 @@
 ---
 - set_fact:
-    mail:
-      domain: example.org
-      hostname: mail.example.org
+    mail_conf:
       uid: 2222
       gid: 2222
       user: vmail
       group: vmail
       maildir: "{{ data_dir }}/mail/vmail"
-      mailboxes:
-        - domain: bar.com
-          account: jakob
-          password: test
-          salt: adfdsd
-          aliases:
-            - alias@foo.com
-            - test2@foo.com
-        - domain: example.org
-          account: jakob
-          password: test
-          salt: adfdsd
-          aliases:
-            - alias@example.org
-            - test@foo.com
+      hostname: "{{ mail.mailserver }}"
+      domain: "{{ mail.mailserver | regex_search('([a-z0-9-]+\\.[a-z]+$)') }}"
+      mailboxes: "{{ mail.mailboxes }}"
 
 - set_fact:
     mail_computed:
-      alias_domains: "{{ mail.mailboxes | sum(attribute='aliases', start=[]) | map('regex_replace', '.*@', '') | list | unique }}"
-      mailbox_domains: "{{ mail.mailboxes | map(attribute='domain') | list | unique }}"
+      alias_domains: "{{ mail_conf.mailboxes | sum(attribute='aliases', start=[]) | map('regex_replace', '.*@', '') | list | unique }}"
+      mailbox_domains: "{{ mail_conf.mailboxes | map(attribute='domain') | list | unique }}"
 
 - group:
-    name: "{{ mail.group }}"
-    gid: "{{ mail.gid }}"
+    name: "{{ mail_conf.group }}"
+    gid: "{{ mail_conf.gid }}"
     state: present
 
 - user:
-    name: "{{ mail.user }}"
-    group: "{{ mail.group }}"
-    uid: "{{ mail.uid }}"
-    home: "{{ mail.maildir }}"
+    name: "{{ mail_conf.user }}"
+    group: "{{ mail_conf.group }}"
+    uid: "{{ mail_conf.uid }}"
+    home: "{{ mail_conf.maildir }}"
     shell: /bin/false
     createhome: no
 
 - file:
-    path: "{{ mail.maildir }}"
-    owner: "{{ mail.user }}"
-    group: "{{ mail.group }}"
+    path: "{{ mail_conf.maildir }}"
+    owner: "{{ mail_conf.user }}"
+    group: "{{ mail_conf.group }}"
     state: directory
     mode: "u=rwx,g=rx,o-rwx"
 
 - file:
-    path: "{{ mail.maildir }}/{{ item }}"
-    owner: "{{ mail.user }}"
-    group: "{{ mail.group }}"
+    path: "{{ mail_conf.maildir }}/{{ item }}"
+    owner: "{{ mail_conf.user }}"
+    group: "{{ mail_conf.group }}"
     state: directory
     mode: "u=rwx,g=rx,o-rwx"
   with_items: "{{ mail_computed.mailbox_domains | union(mail_computed.alias_domains) | unique | list }}"

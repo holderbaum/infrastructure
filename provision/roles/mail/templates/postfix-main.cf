@@ -3,8 +3,8 @@
 ###############
 
 # Main domain and hostname
-mydomain = {{ mail.domain }}
-myhostname = {{ mail.hostname }}
+mydomain = {{ mail_conf.domain }}
+myhostname = {{ mail_conf.hostname }}
 myorigin = $mydomain
 mydestination = $myhostname
 
@@ -33,11 +33,11 @@ virtual_mailbox_domains={{ mail_computed.mailbox_domains | union(mail_computed.a
 virtual_alias_maps=texthash:/etc/postfix/virtual_alias_maps
 virtual_mailbox_maps=texthash:/etc/postfix/virtual_mailbox_maps
 
-virtual_mailbox_base = {{ mail.maildir }}
-virtual_minimum_uid = {{ mail.uid }}
+virtual_mailbox_base = {{ mail_conf.maildir }}
+virtual_minimum_uid = {{ mail_conf.uid }}
 virtual_transport = virtual
-virtual_uid_maps = static:{{ mail.uid }}
-virtual_gid_maps = static:{{ mail.gid }}
+virtual_uid_maps = static:{{ mail_conf.uid }}
+virtual_gid_maps = static:{{ mail_conf.gid }}
 
 # Disable delivery through external programs
 mailbox_command =
@@ -97,8 +97,8 @@ tls_preempt_cipherlist = yes
 # services and not a strong requirement. Also, TLS is enforced for submission
 # and smtps in master.cf.
 smtpd_tls_security_level = may
-smtpd_tls_cert_file={{ ssl.certificates_dir }}/{{ mail.hostname }}/cert.pem
-smtpd_tls_key_file={{ ssl.certificates_dir }}/{{ mail.hostname }}/privkey.pem
+smtpd_tls_cert_file={{ ssl.certificates_dir }}/{{ mail_conf.hostname }}/cert.pem
+smtpd_tls_key_file={{ ssl.certificates_dir }}/{{ mail_conf.hostname }}/privkey.pem
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 
 # Server-side TLS is hardened, it should be up to the client to update his or

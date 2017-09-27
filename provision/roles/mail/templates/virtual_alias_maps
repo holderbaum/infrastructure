@@ -1,4 +1,4 @@
-{% for mailbox in mail.mailboxes %}
+{% for mailbox in mail_conf.mailboxes %}
 # Aliases for {{ mailbox.account }}@{{ mailbox.domain }}
 {% for alias in mailbox.aliases %}
 {{ alias }}  {{ mailbox.account }}@{{ mailbox.domain }}
