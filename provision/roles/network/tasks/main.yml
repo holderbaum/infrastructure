@@ -1,4 +1,13 @@
 ---
-- name: Add additional IP addresses
-  shell: "ip addr |grep {{ item }} &>/dev/null || ip addr add {{ item }}/32 dev eth0"
+- blockinfile:
+    path: /etc/network/interfaces
+    block: |
+      iface eth0 inet static
+        address {{ item }}/32
+        netmask 255.255.255.0
   with_items: "{{ ips }}"
+  register: reload_network
+
+- name: restart network
+  shell: 'ifdown eth0 && ifup eth0'
+  when: reload_network|changed
