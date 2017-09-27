@@ -16,4 +16,4 @@
     - ssl
     - static-sites
     - xmpp
-    - { role: mail, when: env == 'test' }
+    - mail
