@@ -72,18 +72,17 @@ smtpd_recipient_restrictions =
    permit_mynetworks,
    permit
 
-# ###############
-# # SASL
-# ###############
-# 
-# smtpd_sasl_local_domain = $myhostname
-# 
-# # Authentication is done against dovecot, which acts as the main authention
-# # source
-# smtpd_sasl_type = dovecot
-# smtpd_sasl_path = inet:localhost:2102
-# smtpd_sasl_auth_enable = yes
-# smtpd_sasl_security_options = noanonymous
+###############
+# SASL
+###############
+
+smtpd_sasl_local_domain = $myhostname
+
+# Authentication is done against dovecot
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = inet:localhost:2102
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_security_options = noanonymous
 
 ###############
 # TLS
