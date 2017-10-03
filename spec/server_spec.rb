@@ -277,7 +277,7 @@ describe 'infrastructure' do
 
       it 'should accept mail to known mailbox with suffix' do
         body = 'a test mail ' + rand(1000).to_s
-        send_mail 'jakob+foo@example.org', body
+        send_mail 'jakob-foo@example.org', body
         expected = fetch_newest_mail_body('jakob@example.org', 'test')
         expect(expected).to contain(body)
       end
@@ -392,7 +392,7 @@ describe 'infrastructure' do
       end
 
       it 'should allow authenticated sending from address with extension' do
-        from = 'jakob+foo@example.org'
+        from = 'jakob-foo@example.org'
         to = 'bit-bucket@test.smtp.org'
         msg = "Subject: Hey!!\n\nWhat's hangin'?"
         smtp = Net::SMTP.new 'mail.example.org', 587

@@ -42,6 +42,9 @@ virtual_gid_maps = static:{{ mail_conf.gid }}
 # Disable delivery through external programs
 mailbox_command =
 
+# Allow more convenient delimiters
+recipient_delimiter = +-.
+
 ###############
 # Restrictions
 ###############
