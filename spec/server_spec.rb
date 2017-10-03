@@ -338,5 +338,87 @@ describe 'infrastructure' do
         imap.fetch(last_message_id, 'BODY[TEXT]')[0].attr['BODY[TEXT]']
       end
     end
+
+    describe 'sending' do
+      it 'should not allow unencrypted sending' do
+        expected_error = Net::SMTPAuthenticationError
+        expected_message = /Must issue a STARTTLS/
+
+        smtp = Net::SMTP.new 'mail.example.org', 587
+        expect do
+          smtp.start('mail.example.org') do
+            msg = "Subject: Hey!!\n\nWhat's hangin'?"
+            smtp.send_message msg, 'jakob@example.org', 'foo@example.com'
+          end
+        end.to raise_error expected_error, expected_message
+      end
+
+      it 'should not allow unauthenticated sending' do
+        expected_error = Net::SMTPFatalError
+        expected_message = /Access denied/
+
+        smtp = Net::SMTP.new 'mail.example.org', 587
+        smtp.enable_starttls
+        expect do
+          smtp.start('mail.example.org') do
+            msg = "Subject: Hey!!\n\nWhat's hangin'?"
+            smtp.send_message msg, 'jakob@example.org', 'foo@example.com'
+          end
+        end.to raise_error expected_error, expected_message
+      end
+
+      it 'should allow authenticated sending from mailbox address' do
+        from = 'jakob@example.org'
+        to = 'bit-bucket@test.smtp.org'
+        msg = "Subject: Hey!!\n\nWhat's hangin'?"
+        smtp = Net::SMTP.new 'mail.example.org', 587
+        smtp.enable_starttls
+        smtp.start('mail.example.org') do
+          smtp.auth_plain from, 'test'
+          smtp.send_message(msg, from, to)
+        end
+      end
+
+      it 'should allow authenticated sending from mailbox alias' do
+        from = 'test@foo.com'
+        to = 'bit-bucket@test.smtp.org'
+        msg = "Subject: Hey!!\n\nWhat's hangin'?"
+        smtp = Net::SMTP.new 'mail.example.org', 587
+        smtp.enable_starttls
+        smtp.start('mail.example.org') do
+          smtp.auth_plain 'jakob@example.org', 'test'
+          smtp.send_message(msg, from, to)
+        end
+      end
+
+      it 'should allow authenticated sending from address with extension' do
+        from = 'jakob+foo@example.org'
+        to = 'bit-bucket@test.smtp.org'
+        msg = "Subject: Hey!!\n\nWhat's hangin'?"
+        smtp = Net::SMTP.new 'mail.example.org', 587
+        smtp.enable_starttls
+        smtp.start('mail.example.org') do
+          smtp.auth_plain 'jakob@example.org', 'test'
+          smtp.send_message(msg, from, to)
+        end
+      end
+
+      it 'should deny authenticated sending from different mailbox\' alias' do
+        expected_error = Net::SMTPFatalError
+        expected_message = /not owned by user jakob@example.org/
+
+        from = 'test2@foo.com'
+        to = 'bit-bucket@test.smtp.org'
+        msg = "Subject: Hey!!\n\nWhat's hangin'?"
+        smtp = Net::SMTP.new 'mail.example.org', 587
+        smtp.enable_starttls
+        expect do
+          smtp.start('mail.example.org') do
+            smtp.auth_plain 'jakob@example.org', 'test'
+            smtp.send_message(msg, from, to)
+          end
+        end.to raise_error expected_error, expected_message
+      end
+    end
   end
 end

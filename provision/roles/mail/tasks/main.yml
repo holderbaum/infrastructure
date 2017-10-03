@@ -63,6 +63,8 @@
     # SMTP S2S
     - { rule: 'allow', port: '25', proto: 'tcp' }
     - { rule: 'allow', port: '2525', proto: 'tcp' }
+    # SMTP C2S
+    - { rule: 'allow', port: '587', proto: 'tcp' }
     # POP3
     - { rule: 'allow', port: '110', proto: 'tcp' }
     - { rule: 'allow', port: '995', proto: 'tcp' }
@@ -85,6 +87,14 @@
   template:
     src: templates/postfix-main.cf
     dest: /etc/postfix/main.cf
+    mode: "u=r,g=r,o=r"
+  notify:
+    - restart postfix
+
+- name: Configure master postfix
+  template:
+    src: templates/postfix-master.cf
+    dest: /etc/postfix/master.cf
     mode: "u=r,g=r,o=r"
   notify:
     - restart postfix
