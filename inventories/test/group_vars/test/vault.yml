@@ -8,7 +8,6 @@ vault:
   ips: []
   domains:
     - example.org
-    - mail.example.org
     - test.example.org
     - blog.example.org
     - xmpp.example.org
@@ -36,20 +35,8 @@ vault:
   static_sites:
     - name: test
       domain: test.example.org
+      restricted:
+        - user: user1
+          pass: foobar
     - name: blog
       domain: blog.example.org
-  mail:
-    mailserver: mail.example.org
-    mailboxes:
-      - domain: bar.com
-        account: jakob
-        password: otherpw
-        aliases:
-          - alias@foo.com
-          - test2@foo.com
-      - domain: example.org
-        account: jakob
-        password: test
-        aliases:
-          - alias@example.org
-          - test@foo.com

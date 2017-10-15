@@ -1,3 +1,0 @@
-{% for mailbox in mail_conf.mailboxes %}
-{{ mailbox.account }}@{{ mailbox.domain }}:{{ mailbox.password | password_hash('sha512', mailbox.account + mailbox.domain) }}:{{ mail_conf.uid }}:{{ mail_conf.gid }}::{{ mail_conf.maildir }}/{{ mailbox.domain }}/{{ mailbox.account }}/:/bin/false::
-{% endfor %}
