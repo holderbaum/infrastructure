@@ -33,13 +33,15 @@ module Helpers
     Resolv::DefaultResolver.replace_resolvers([hosts_resolver, dns_resolver])
   end
 
-  def get(url)
+  def get(url, user = nil, pass = nil)
     http = Faraday.new url
+    http.basic_auth user, pass if user && pass
     http.get
   end
 
-  def get_no_verify(url)
+  def get_no_verify(url, user = nil, pass = nil)
     http = Faraday.new url, ssl: { verify: false }
+    http.basic_auth user, pass if user && pass
     http.get
   end
 end

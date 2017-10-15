@@ -9,4 +9,9 @@ server {
   location / {
     index  index.html index.htm;
   }
+
+  {% if site.restricted is defined %}
+  auth_basic "Restricted";
+  auth_basic_user_file /etc/nginx/htpasswd/{{ site.name }};
+  {% endif %}
 }

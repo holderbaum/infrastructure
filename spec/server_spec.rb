@@ -12,7 +12,8 @@ describe 'infrastructure' do
     setup_ssh_backend
     setup_fake_hosts [
       'xmpp.example.org',
-      'blog.example.org'
+      'blog.example.org',
+      'test.example.org'
     ]
   end
 
@@ -194,6 +195,20 @@ describe 'infrastructure' do
       response = get_no_verify 'https://blog.example.org/'
       expect(response.status).to be(200)
       expect(response.body).to contain(content)
+    end
+
+    describe 'with htaccess' do
+      let(:host) { 'test.example.org' }
+
+      it 'should not allow passwordless access' do
+        response = get_no_verify 'https://test.example.org/'
+        expect(response.status).to be(401)
+      end
+
+      it 'should allow access with correct credentials' do
+        response = get_no_verify 'https://test.example.org/', 'user1', 'foobar'
+        expect(response.status).to be(200)
+      end
     end
   end
 end

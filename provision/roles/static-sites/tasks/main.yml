@@ -3,6 +3,12 @@
     static_sites_config:
       www_home: "{{ data_dir }}/static_sites"
 
+- name: Install passlib
+  apt:
+    package: python3-passlib
+    state: present
+    update_cache: yes
+
 - name: Ensure static site base dir
   file:
     path: "{{ static_sites_config.www_home }}"

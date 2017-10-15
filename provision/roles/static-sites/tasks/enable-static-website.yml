@@ -45,3 +45,32 @@
     mode: "u=rx,g=rx,o-rwx"
   notify:
     - restart nginx
+
+- file:
+    path: "/etc/nginx/htpasswd"
+    owner: "nginx"
+    group: "nginx"
+    state: directory
+    mode: "u=rx,g=rx,o-rwx"
+
+- name: Add access restriction
+  htpasswd:
+    path:  "/etc/nginx/htpasswd/{{ site.name }}"
+    name: "{{ item.user }}"
+    password: "{{ item.pass }}"
+    owner: nginx
+    group: nginx
+    mode: "u=rx,g=rx,o-rwx"
+  when: site.restricted is defined
+  items: "{{ site.restricted }}"
+  notify:
+    - restart nginx
+
+- name: Add default landing page if not existing
+  copy:
+    src: files/index.html
+    dest: "{{ static_sites_config.www_home }}/{{ site.name }}/www/index.html"
+    force: no
+    owner: "deploy-{{ site.name }}"
+    group: "deploy-{{ site.name }}"
+    mode: "u=rwx,g=rx,o-rwx"
