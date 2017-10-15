@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pass show server/holderbaum.me/ansible-vault-password
+pass show hetzner/server/turing.holderbaum.me/ansible-vault-password
