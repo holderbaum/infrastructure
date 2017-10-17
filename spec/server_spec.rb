@@ -127,7 +127,7 @@ describe 'infrastructure' do
   describe 'ssl' do
     describe file('/data/certificates/test.example.org/privkey.pem') do
       it { should be_file }
-      it { should be_mode 440 }
+      it { should be_mode 640 }
     end
 
     describe file('/etc/cron.d/certbot_renew_test_example_org') do
