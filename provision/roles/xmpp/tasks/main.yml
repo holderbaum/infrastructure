@@ -127,6 +127,8 @@
 
 - name: Register XMPP users
   shell: "/usr/local/bin/register-xmpp-user.sh '{{ item.name }}' '{{ item.password }}'"
+  args:
+    executable: /bin/bash
   become: yes
   become_user: ejabberd
   with_items: '{{ xmpp.users }}'

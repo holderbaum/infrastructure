@@ -77,6 +77,7 @@
   shell: "/usr/local/bin/obtain-or-renew-certificate.sh '{{ item }}' '{{ env }}'"
   args:
     creates: "{{ ssl.certificates_dir }}/{{ item }}/privkey.pem"
+    executable: /bin/bash
   become: yes
   become_user: certbot
   with_items: "{{ domains }}"
