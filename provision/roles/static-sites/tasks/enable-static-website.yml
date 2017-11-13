@@ -37,6 +37,14 @@
     key: '{{ item }}'
   with_items: "{{ owner.pubkeys }}"
 
+- name: Allow access for configured others
+  authorized_key:
+    user: "deploy-{{ site.name }}"
+    state: present
+    key: '{{ item }}'
+  when: site.pubkeys is defined
+  with_items: "{{ site.pubkeys }}"
+
 - name: Add nginx configuration
   template:
     src: templates/nginx-vhost.conf.j2
