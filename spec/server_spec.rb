@@ -147,6 +147,10 @@ describe 'infrastructure' do
       wait_for { port 80 }.to be_listening.with 'tcp'
     end
 
+    describe package('goaccess') do
+      it { should be_installed }
+    end
+
     it 'should redirect to https' do
       response = get "http://#{external_ip}/foo/"
       expect(response.status).to be(301)

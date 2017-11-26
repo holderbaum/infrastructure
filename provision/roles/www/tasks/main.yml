@@ -1,11 +1,27 @@
 ---
-- apt_repository:
+- name: Add nginx repository
+  apt_repository:
     repo: deb http://nginx.org/packages/ubuntu/ xenial nginx
     state: present
 
 - apt_key:
     url: https://nginx.org/keys/nginx_signing.key
     id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
+
+- name: Add goaccess repository
+  apt_repository:
+    repo: deb http://deb.goaccess.io/ xenial main
+    state: present
+
+- apt_key:
+    url: https://deb.goaccess.io/gnugpg.key
+    id: FA0BF24A0F9463670B880EAB742483B7B222C443
+
+- name: Install goaccess
+  apt:
+    package: goaccess
+    state: present
+    update_cache: yes
 
 - name: Install nginx
   apt:
