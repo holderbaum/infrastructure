@@ -8,6 +8,7 @@
 - set_fact:
     ejabberd_pathes:
       dhparam_file: '{{ ejabberd.home_dir }}/dhparams.pem'
+      db_file: '{{ ejabberd.home_dir }}/dhparams.db'
       deb_file: '{{ ejabberd.home_dir }}/ejabberd_{{ ejabberd.version }}-0_amd64.deb'
 
 - group:
@@ -35,6 +36,12 @@
     - "/etc/ejabberd"
     - "{{ ejabberd.home_dir }}"
     - "{{ ejabberd.home_dir }}/spool"
+
+- name: Install sqlite
+  apt:
+    package: sqlite3
+    state: present
+    update_cache: yes
 
 - name: Download ejabberd
   get_url:

@@ -44,9 +44,12 @@ s2s_use_starttls: required
 s2s_certfile: 'CERTFILE'
 s2s_protocol_options: 'TLSOPTS'
 
-auth_method: internal
+auth_method: odbc
 auth_password_format: scram
 fqdn: "{{ xmpp.domain }}"
+
+odbc_type: sqlite
+odbc_database: "{{ ejabberd_pathes.db_file }}"
 
 shaper:
   normal: 1000
