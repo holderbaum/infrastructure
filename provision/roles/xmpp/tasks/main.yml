@@ -8,7 +8,7 @@
 - set_fact:
     ejabberd_pathes:
       dhparam_file: '{{ ejabberd.home_dir }}/dhparams.pem'
-      db_file: '{{ ejabberd.home_dir }}/dhparams.db'
+      db_file: '{{ ejabberd.home_dir }}/ejabberd.db'
       deb_file: '{{ ejabberd.home_dir }}/ejabberd_{{ ejabberd.version }}-0_amd64.deb'
 
 - group:
