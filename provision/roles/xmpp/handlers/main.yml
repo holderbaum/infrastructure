@@ -1,6 +1,0 @@
----
-- name: restart ejabberd
-  service:
-    daemon_reload: yes
-    name: ejabberd
-    state: restarted

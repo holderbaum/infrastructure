@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'English'
-require 'xmpp4r'
 require 'net/smtp'
 require 'net/imap'
 require 'net/pop'
@@ -11,7 +10,6 @@ describe 'infrastructure' do
   before(:all) do
     setup_ssh_backend
     setup_fake_hosts [
-      'xmpp.example.org',
       'blog.example.org',
       'test.example.org'
     ]
@@ -70,57 +68,6 @@ describe 'infrastructure' do
 
     describe command('unison -version') do
       its(:stdout) { should match(/2.48.4/) }
-    end
-  end
-
-  describe 'xmpp' do
-    let(:host) { 'xmpp.example.org' }
-    let(:user) { 'testuser' }
-    let(:pass) { 'testpass' }
-
-    before do
-      Jabber.debug = false
-    end
-
-    it 'should be reachable for c2s' do
-      wait_for { port 5222 }.to be_listening.with 'tcp'
-    end
-
-    it 'should be reachable for c2c' do
-      wait_for { port 5269 }.to be_listening.with 'tcp'
-    end
-
-    it 'should do proper starttls' do
-      # openssl s_client
-      #   -connect 172.28.128.3:5222
-      #   -starttls xmpp
-      #   -xmpphost xmpp.example.org
-      #   </dev/null
-    end
-
-    it 'should allow login' do
-      jid = Jabber::JID.new "#{user}@#{host}"
-      client = Jabber::Client.new jid
-      client.connect
-      client.auth pass
-    end
-
-    it 'should deny unauthorized connections' do
-      jid = Jabber::JID.new "#{user}@#{host}"
-      client = Jabber::Client.new jid
-      client.connect
-      expect do
-        client.auth_anonymous
-      end.to raise_error(Jabber::ClientAuthenticationFailure)
-    end
-
-    it 'should deny registrations' do
-      jid = Jabber::JID.new "#{user}2@#{host}"
-      client = Jabber::Client.new jid
-      client.connect
-      expect do
-        client.register pass
-      end.to raise_error(Jabber::ServerError)
     end
   end
 
