@@ -10,4 +10,4 @@
 
 - name: restart network
   shell: 'ifdown eth0 && ifup eth0'
-  when: reload_network|changed
+  when: reload_network is changed
