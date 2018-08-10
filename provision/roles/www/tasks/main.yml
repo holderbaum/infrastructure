@@ -23,6 +23,19 @@
     state: present
     update_cache: yes
 
+- name: Install goaccess dependencies
+  apt:
+    package: libgeoip-dev
+    state: present
+    update_cache: yes
+
+- name: Install goaccess dependencies
+  apt:
+    package: libmaxminddb-dev
+    state: present
+    update_cache: yes
+
+
 - name: Install nginx
   apt:
     package: nginx
@@ -56,3 +69,16 @@
     state: started
     enabled: yes
 
+- name: Add log refresh script
+  template:
+    src: files/report.sh
+    dest: /usr/local/bin/report.sh
+    mode: "u=rx,g=rx,o=rx"
+
+- name: Register cronjobs for log refreshing
+  cron:
+    special_time: hourly
+    user: root
+    name: "Refresh logs"
+    cron_file: "refresh_logs"
+    job: "/usr/local/bin/report.sh"
