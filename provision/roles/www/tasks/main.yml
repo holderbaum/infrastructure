@@ -31,6 +31,18 @@
 
 - name: Install goaccess dependencies
   apt:
+    package: geoip-database-extra
+    state: present
+    update_cache: yes
+
+- name: Install goaccess dependencies
+  apt:
+    package: geoip-database
+    state: present
+    update_cache: yes
+
+- name: Install goaccess dependencies
+  apt:
     package: libmaxminddb-dev
     state: present
     update_cache: yes

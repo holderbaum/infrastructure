@@ -11,7 +11,7 @@ do
     user="deploy-$name"
     group="deploy-$name"
     mkdir -p "$report_dir"
-    goaccess -a "$log_file" -o "$report_dir/index.html" --log-format=COMBINED
+    goaccess -g -a "$log_file" -o "$report_dir/index.html" --log-format=COMBINED
     chown -R "${user}:${group}" "$report_dir"
   else
     echo "Skipping empty $log_file"
