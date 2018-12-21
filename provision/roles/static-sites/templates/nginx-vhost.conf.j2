@@ -1,5 +1,18 @@
 server {
   listen  443 ssl http2;
+  server_name  www.{{ site.domain }};
+  root {{ static_sites_config.www_home }}/{{ site.name }}/www;
+  access_log {{ static_sites_config.www_home }}/{{ site.name }}/access.log;
+  error_log {{ static_sites_config.www_home }}/{{ site.name }}/error.log warn;
+
+  ssl_certificate {{ ssl.certificates_dir }}/{{ site.domain }}/fullchain.pem;
+  ssl_certificate_key {{ ssl.certificates_dir }}/{{ site.domain }}/privkey.pem;
+
+  return 301 https://{{ site.domain }}$request_uri;
+}
+
+server {
+  listen  443 ssl http2;
   server_name  {{ site.domain }};
   root {{ static_sites_config.www_home }}/{{ site.name }}/www;
   access_log {{ static_sites_config.www_home }}/{{ site.name }}/access.log;

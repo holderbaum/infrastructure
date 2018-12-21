@@ -32,6 +32,8 @@ certbot \
   --config-dir "$config_dir" \
   --work-dir "$work_dir" \
   --logs-dir "$log_dir" \
+  --expand \
+  --domain "www.$domain" \
   --domain "$domain" \
   -m "$mail"
 else
