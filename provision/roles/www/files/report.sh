@@ -14,6 +14,7 @@ do
     goaccess \
       -g \
       --ignore-crawlers \
+      --http-protocol=no \
       -a "$log_file" \
       -o "$report_dir/index.html" \
       --log-format=COMBINED
@@ -25,6 +26,7 @@ do
       | goaccess \
       -g \
       --ignore-crawlers \
+      --http-protocol=no \
       --date-spec=hr \
       -o "$report_dir/$target" \
       --log-format=COMBINED
@@ -36,6 +38,7 @@ do
       | goaccess \
       -g \
       --ignore-crawlers \
+      --http-protocol=no \
       --date-spec=hr \
       -o "$report_dir/$target" \
       --log-format=COMBINED
