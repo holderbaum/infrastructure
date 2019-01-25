@@ -13,11 +13,36 @@ do
     mkdir -p "$report_dir"
     goaccess \
       -g \
+      --ignore-crawlers \
       -a "$log_file" \
       -o "$report_dir/index.html" \
       --log-format=COMBINED
+
+    date="$(date -d "1 day ago" '+%d/%b/%Y')"
+    target="$(date -d "1 day ago" '+%Y-%m-%d').html"
+    cat "$log_file" \
+      |grep "\[${date}:" \
+      | goaccess \
+      -g \
+      --ignore-crawlers \
+      --date-spec=hr \
+      -o "$report_dir/$target" \
+      --log-format=COMBINED
+
+    date="$(date -d "2 day ago" '+%d/%b/%Y')"
+    target="$(date -d "2 day ago" '+%Y-%m-%d').html"
+    cat "$log_file" \
+      |grep "\[${date}:" \
+      | goaccess \
+      -g \
+      --ignore-crawlers \
+      --date-spec=hr \
+      -o "$report_dir/$target" \
+      --log-format=COMBINED
+
     chown -R "${user}:${group}" "$report_dir"
   else
     echo "Skipping empty $log_file"
   fi
 done
+
