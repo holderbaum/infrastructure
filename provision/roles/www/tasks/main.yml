@@ -60,6 +60,12 @@
     groups: "{{ acme.group }}"
     append: yes
 
+- name: Configure Nginx
+  copy:
+    src: files/nginx.conf
+    dest: "/etc/nginx/nginx.conf"
+    mode: "u=rw,g=r,o=r"
+
 - name: Allow acme webroot access over HTTP
   template:
     src: templates/nginx-default.conf.j2
