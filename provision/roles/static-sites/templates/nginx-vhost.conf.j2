@@ -5,6 +5,14 @@ server {
   access_log {{ static_sites_config.www_home }}/{{ site.name }}/access.log;
   error_log {{ static_sites_config.www_home }}/{{ site.name }}/error.log warn;
 
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+  add_header Referrer-Policy "no-referrer" always;
+  {% if site.csp is defined %}
+  add_header Content-Security-Policy "{{ site.csp }}" always;
+  {% else %}
+  add_header Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" always;
+  {% endif %}
+
   ssl_certificate {{ ssl.certificates_dir }}/{{ site.domain }}/fullchain.pem;
   ssl_certificate_key {{ ssl.certificates_dir }}/{{ site.domain }}/privkey.pem;
 
@@ -17,6 +25,15 @@ server {
   root {{ static_sites_config.www_home }}/{{ site.name }}/www;
   access_log {{ static_sites_config.www_home }}/{{ site.name }}/access.log;
   error_log {{ static_sites_config.www_home }}/{{ site.name }}/error.log warn;
+
+
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+  add_header Referrer-Policy "no-referrer" always;
+  {% if site.csp is defined %}
+  add_header Content-Security-Policy "{{ site.csp }}" always;
+  {% else %}
+  add_header Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" always;
+  {% endif %}
 
   ssl_certificate {{ ssl.certificates_dir }}/{{ site.domain }}/fullchain.pem;
   ssl_certificate_key {{ ssl.certificates_dir }}/{{ site.domain }}/privkey.pem;
