@@ -48,6 +48,7 @@ server {
   location /{{ site.name |hash('sha1') }}/ {
     index  index.html index.htm;
     alias {{ static_sites_config.www_home }}/{{ site.name }}/report/;
+    add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' data: 'unsafe-eval'; style-src 'self' 'unsafe-inline'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" always;
   }
 
   location / {
