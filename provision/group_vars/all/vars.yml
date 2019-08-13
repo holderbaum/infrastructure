@@ -12,3 +12,5 @@ xmpp:
   users: "{{ vault.xmpp.users }}"
 static_sites: "{{ vault.static_sites }}"
 mail: "{{ vault.mail }}"
+git:
+  pubkeys: "{{ vault.git.pubkeys }}"
